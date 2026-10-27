@@ -5,4 +5,4 @@ def index(request):
     return HttpResponse("Hello")
 
 def hi(request):
-    return HttpResponse("hi")
+    return HttpResponse("hello ")
