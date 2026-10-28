@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Home | Service Booking{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Find the Right Service for You</h1>
+
+    <p>
+        Discover trusted service providers and manage your appointments
+        in one convenient place.
+    </p>
+
+    <a class="button" href="{% url 'services' %}">
+        Explore Services
+    </a>
+
+    <a class="button" href="{% url 'register' %}">
+        Create an Account
+    </a>
+</section>
+{% endblock %}
