@@ -1,9 +1,18 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Welcome - Appointment Booking Platform{% endblock %}
+{% block extra_css %}
+<style>
+    body {
+        background: url("{% static 'images/login-bg.jpg' %}") no-repeat center center fixed !important;
+        background-size: cover !important;
+    }
+</style>
+{% endblock %}
 {% block content %}
 <div class="row justify-content-center mt-4">
     <div class="col-md-6 mb-4">
-        <div class="card shadow-sm">
+        <div class="card shadow-sm" style="background-color: rgba(255,255,255,0.92);">
             <div class="card-body">
                 <h3 class="card-title mb-3 text-primary">Register</h3>
                 <form action="/register" method="POST">
@@ -26,7 +35,7 @@
         </div>
     </div>
     <div class="col-md-5">
-        <div class="card shadow-sm">
+        <div class="card shadow-sm" style="background-color: rgba(255,255,255,0.92);">
             <div class="card-body">
                 <h3 class="card-title mb-3 text-success">Sign In</h3>
                 <form action="/login" method="POST">

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}Dashboard - Appointment Booking{% endblock %}
 {% block content %}
 <div class="row mb-4">
@@ -23,7 +24,7 @@
             <div class="card h-100 shadow-sm"><div class="card-body">
                 <h5 class="card-title">Upcoming Appointments</h5>
                 <p class="text-muted">View and manage your scheduled appointments.</p>
-                <a href="#recent" class="btn btn-primary w-100">View Appointments</a>
+                <a href="/appointments" class="btn btn-primary w-100">View Appointments</a>
             </div></div>
         </div>
         <div class="col-md-4 mb-4">
@@ -35,20 +36,37 @@
         </div>
     </div>
 
-    <div class="card shadow-sm p-4" id="recent">
-        <h4>Recent Activity</h4>
-        <hr>
-        {% if appointments %}
-            {% for appt in appointments %}
-                <div class="border rounded p-3 mb-3">
-                    <strong>{{ appt.time_slot.provider.service_title }}</strong> with {{ appt.time_slot.provider.user.first_name }}<br>
-                    <small class="text-muted">Date: {{ appt.time_slot.date }} | Time: {{ appt.time_slot.start_time }}</small>
-                    <a href="/appointment/cancel/{{ appt.id }}" class="btn btn-danger w-100 mt-2">Cancel</a>
+    <!-- How it works / advertising section -->
+    <h3 class="mt-4 mb-3">Why book with us?</h3>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{% static 'images/browse.jpg' %}" class="card-img-top" alt="Browse services" style="height:180px; object-fit:cover;">
+                <div class="card-body">
+                    <h5 class="card-title">Find the right professional</h5>
+                    <p class="text-muted">Search by service, category or price and compare approved providers in one place.</p>
                 </div>
-            {% endfor %}
-        {% else %}
-            <p class="text-muted">You have no upcoming appointments booked yet.</p>
-        {% endif %}
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{% static 'images/book.jpg' %}" class="card-img-top" alt="Book easily" style="height:180px; object-fit:cover;">
+                <div class="card-body">
+                    <h5 class="card-title">Book in a few clicks</h5>
+                    <p class="text-muted">Pick a day and a time that suits you. No phone calls and no waiting.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{% static 'images/offer.jpg' %}" class="card-img-top" alt="Special offer" style="height:180px; object-fit:cover;">
+                <div class="card-body">
+                    <h5 class="card-title">Special offers</h5>
+                    <p class="text-muted">New here? Check the Services page for great prices from our professionals.</p>
+                    <a href="/services" class="btn btn-success">See Offers</a>
+                </div>
+            </div>
+        </div>
     </div>
 {% elif user.role == 'provider' %}
     <div class="row">

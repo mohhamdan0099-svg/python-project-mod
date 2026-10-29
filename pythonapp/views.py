@@ -93,6 +93,8 @@ def dashboard(request):
 def browse_services(request):
     if 'user_id' not in request.session:
         return redirect('/')
+    if request.session.get('user_role') != 'client':
+          return redirect('/dashboard')
     services = Service.objects.filter(provider__approval_status='Approved')
 
     search = request.GET.get('search', '')
@@ -109,9 +111,23 @@ def browse_services(request):
     return render(request, 'browse_services.html', {'services': services})
 
 
+def appointments(request):
+  if 'user_id' not in request.session:
+    return redirect('/')
+  if request.session.get('user_role') != 'client':
+    return redirect('/dashboard')
+
+  appts = Appointment.objects.filter(
+      client_id=request.session['user_id']
+  ).order_by('time_slot__date', 'time_slot__start_time')
+  return render(request, 'appointments.html', {'appointments': appts})
+
+
 def book_appointment(request, provider_id):
   if 'user_id' not in request.session:
     return redirect('/')
+  if request.session.get('user_role') != 'client':
+    return redirect('/dashboard')
   provider = get_object_or_404(ProviderProfile, id=provider_id)
   available_slots = TimeSlot.objects.filter(
       provider=provider, is_booked=False
@@ -126,6 +142,8 @@ def book_appointment(request, provider_id):
 def confirm_booking(request, slot_id):
   if 'user_id' not in request.session:
     return redirect('/')
+  if request.session.get('user_role') != 'client':
+        return redirect('/dashboard')
   slot = get_object_or_404(TimeSlot, id=slot_id)
   if not slot.is_booked:
     slot.is_booked = True
@@ -187,13 +205,15 @@ def manage_schedule(request):
 def cancel_appointment(request, appointment_id):
     if 'user_id' not in request.session:
         return redirect('/')
+    if request.session.get('user_role') != 'client':
+        return redirect('/dashboard')
     appt = get_object_or_404(Appointment, id=appointment_id, client_id=request.session['user_id'])
     slot = appt.time_slot
     slot.is_booked = False   # free the slot again
     slot.save()
     appt.delete()
     messages.info(request, 'Appointment cancelled.')
-    return redirect('/dashboard')
+    return redirect('/appointments')
 
 
 
