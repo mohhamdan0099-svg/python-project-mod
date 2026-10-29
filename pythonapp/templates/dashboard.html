@@ -12,34 +12,43 @@
 
 {% if user.role == 'client' %}
     <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h3 class="card-title text-primary">Browse Services</h3>
-                    <p class="card-text text-muted">Explore available professional services and book appointment slots.</p>
-                    <a href="/services" class="btn btn-outline-primary">Browse Services</a>
-                </div>
-            </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm"><div class="card-body">
+                <h5 class="card-title">Browse Services</h5>
+                <p class="text-muted">Find available services from professionals.</p>
+                <a href="/services" class="btn btn-primary w-100">Browse Services</a>
+            </div></div>
         </div>
-        <div class="col-md-6 mb-4">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h3 class="card-title text-success">Your Booked Appointments</h3>
-                    {% if appointments %}
-                        <ul class="list-group list-group-flush mb-3">
-                            {% for appt in appointments %}
-                                <li class="list-group-item">
-                                    <strong>{{ appt.time_slot.provider.service_title }}</strong> with {{ appt.time_slot.provider.user.first_name }}<br>
-                                    <small class="text-muted">Date: {{ appt.time_slot.date }} | Time: {{ appt.time_slot.start_time }}</small>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="text-muted">You have no upcoming appointments booked yet.</p>
-                    {% endif %}
-                </div>
-            </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm"><div class="card-body">
+                <h5 class="card-title">Upcoming Appointments</h5>
+                <p class="text-muted">View and manage your scheduled appointments.</p>
+                <a href="#recent" class="btn btn-primary w-100">View Appointments</a>
+            </div></div>
         </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm"><div class="card-body">
+                <h5 class="card-title">About Us</h5>
+                <p class="text-muted">Learn more about our platform.</p>
+                <a href="/about" class="btn btn-primary w-100">About Us</a>
+            </div></div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm p-4" id="recent">
+        <h4>Recent Activity</h4>
+        <hr>
+        {% if appointments %}
+            {% for appt in appointments %}
+                <div class="border rounded p-3 mb-3">
+                    <strong>{{ appt.time_slot.provider.service_title }}</strong> with {{ appt.time_slot.provider.user.first_name }}<br>
+                    <small class="text-muted">Date: {{ appt.time_slot.date }} | Time: {{ appt.time_slot.start_time }}</small>
+                    <a href="/appointment/cancel/{{ appt.id }}" class="btn btn-danger w-100 mt-2">Cancel</a>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted">You have no upcoming appointments booked yet.</p>
+        {% endif %}
     </div>
 {% elif user.role == 'provider' %}
     <div class="row">
@@ -56,33 +65,6 @@
                     <a href="/provider/schedule" class="btn btn-warning">Manage Schedule & Services</a>
                 {% else %}
                     <p class="text-muted mt-2">Your registration is currently pending admin approval. Once approved, you can add time slots and services.</p>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-{% elif user.role == 'admin' %}
-    <div class="row">
-        <div class="col-12">
-            <div class="card shadow-sm p-4">
-                <h3 class="text-dark mb-3">Pending Professional Registrations</h3>
-                {% if pending_providers %}
-                    <div class="list-group">
-                        {% for p in pending_providers %}
-                            <div class="list-group-item d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h5 class="mb-1">{{ p.user.first_name }} {{ p.user.last_name }} - <span class="text-primary">{{ p.service_title }}</span></h5>
-                                    <p class="mb-1 text-muted">{{ p.bio }}</p>
-                                    <small>Email: {{ p.user.email }}</small>
-                                </div>
-                                <div>
-                                    <a href="/portal/admin/approve/{{ p.id }}" class="btn btn-success">Approve</a>
-                                    <a href="/portal/admin/decline/{{ p.id }}" class="btn btn-danger">Decline</a>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <p class="text-muted">No pending professional registrations found.</p>
                 {% endif %}
             </div>
         </div>

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="p-4 bg-white rounded shadow-sm border">
+            <h2 class="text-dark">Admin Dashboard - Professional Registrations</h2>
+            <p class="text-muted mb-0">Review and approve new service providers.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm p-4">
+    <h4 class="mb-3">Pending Professional Registrations</h4>
+    {% if pending_providers %}
+        <div class="list-group">
+            {% for p in pending_providers %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">{{ p.user.first_name }} {{ p.user.last_name }} - <span class="text-primary">{{ p.service_title }}</span></h5>
+                        <small class="text-muted">Email: {{ p.user.email }}</small><br>
+                        <small class="text-muted">Registered: {{ p.user.created_at|date:"Y-m-d" }}</small><br>
+                        <small>Services:
+                            {% for s in p.services.all %}{{ s.name }}{% if not forloop.last %}, {% endif %}{% empty %}none yet{% endfor %}
+                        </small>
+                    </div>
+                    <div>
+                        <a href="/portal/admin/approve/{{ p.id }}" class="btn btn-success btn-sm">Approve</a>
+                        <a href="/portal/admin/reject/{{ p.id }}" class="btn btn-danger btn-sm">Reject</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">No pending professional registrations found.</p>
+    {% endif %}
+</div>
+{% endblock %}

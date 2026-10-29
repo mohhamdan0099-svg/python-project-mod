@@ -85,26 +85,28 @@ def dashboard(request):
     except ProviderProfile.DoesNotExist:
       context['profile'] = None
   elif user.role == 'admin':
-    context['pending_providers'] = ProviderProfile.objects.filter(
-        approval_status='Pending'
-    )
+    return redirect('/portal/admin/dashboard')
 
   return render(request, 'dashboard.html', context)
 
 
 def browse_services(request):
-  if 'user_id' not in request.session:
-    return redirect('/')
-  search_query = request.GET.get('search', '')
-  if search_query:
-    providers = ProviderProfile.objects.filter(
-        approval_status='Approved', service_title__icontains=search_query
-    ) | ProviderProfile.objects.filter(
-        approval_status='Approved', user__first_name__icontains=search_query
-    )
-  else:
-    providers = ProviderProfile.objects.filter(approval_status='Approved')
-  return render(request, 'browse_services.html', {'providers': providers})
+    if 'user_id' not in request.session:
+        return redirect('/')
+    services = Service.objects.filter(provider__approval_status='Approved')
+
+    search = request.GET.get('search', '')
+    category = request.GET.get('category', '')
+    max_price = request.GET.get('max_price', '')
+
+    if search:
+        services = services.filter(name__icontains=search)
+    if category:
+        services = services.filter(category=category)
+    if max_price:
+        services = services.filter(price__lte=max_price)
+
+    return render(request, 'browse_services.html', {'services': services})
 
 
 def book_appointment(request, provider_id):
@@ -140,8 +142,7 @@ def manage_schedule(request):
     user = User.objects.get(id=request.session['user_id'])
     if user.role != 'provider':
         return redirect('/dashboard')
-    
-    # Safely get or create the provider profile if it's missing
+
     profile, created = ProviderProfile.objects.get_or_create(
         user=user,
         defaults={
@@ -165,10 +166,36 @@ def manage_schedule(request):
                 end_time=request.POST['end_time']
             )
             messages.success(request, "Time slot added successfully!")
+        elif 'add_service' in request.POST:
+            Service.objects.create(
+                provider=profile,
+                name=request.POST['service_name'],
+                category=request.POST['category'],
+                description=request.POST['description'],
+                price=request.POST['price']
+            )
+            messages.success(request, "Service added successfully!")
         return redirect('/provider/schedule')
 
     slots = TimeSlot.objects.filter(provider=profile).order_by('date')
-    return render(request, 'manage_schedule.html', {'profile': profile, 'slots': slots})
+    services = Service.objects.filter(provider=profile)
+    return render(request, 'manage_schedule.html', {
+        'profile': profile, 'slots': slots, 'services': services
+    })
+
+
+def cancel_appointment(request, appointment_id):
+    if 'user_id' not in request.session:
+        return redirect('/')
+    appt = get_object_or_404(Appointment, id=appointment_id, client_id=request.session['user_id'])
+    slot = appt.time_slot
+    slot.is_booked = False   # free the slot again
+    slot.save()
+    appt.delete()
+    messages.info(request, 'Appointment cancelled.')
+    return redirect('/dashboard')
+
+
 
 # Add a quick delete/remove service view:
 def remove_service(request, service_id):
@@ -193,21 +220,25 @@ def admin_dashboard(request):
 
 
 def approve_provider(request, provider_id):
+  if request.session.get('user_role') != 'admin':
+    return redirect('/')
   profile = get_object_or_404(ProviderProfile, id=provider_id)
   profile.approval_status = 'Approved'
   profile.save()
   messages.success(
       request, f'Approved {profile.user.first_name} as a service provider.'
   )
-  return redirect('/dashboard')
+  return redirect('/portal/admin/dashboard')
 
 
 def reject_provider(request, provider_id):
+  if request.session.get('user_role') != 'admin':
+    return redirect('/')
   profile = get_object_or_404(ProviderProfile, id=provider_id)
   profile.approval_status = 'Rejected'
   profile.save()
   messages.info(request, f'Rejected {profile.user.first_name}.')
-  return redirect('/dashboard')
+  return redirect('/portal/admin/dashboard')
 
 
 def about_us(request):

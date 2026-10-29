@@ -12,18 +12,23 @@
             <a class="navbar-brand" href="/">Appointment Booking</a>
             <div class="collapse navbar-collapse justify-content-end">
                 <ul class="navbar-nav">
-                    {% if request.session.user_role == 'provider' %}
-                    <li class="nav-item"><a class="nav-link" href="/provider/schedule">Manage Schedule</a></li>
-                    {% endif %}
+                    
                     {% if request.session.user_id %}
                         <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/services">Browse Services</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/about">About Us</a></li>
-                        <li class="nav-item"><a class="nav-link btn btn-outline-light btn-sm text-dark bg-white ms-2" href="/logout">Logout</a></li>
-                    {% else %}
-                        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="/about">About Us</a></li>
-                    {% endif %}
+                        <li class="nav-item"><a class="nav-link" href="/services">Services</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/dashboard">Appointments</a></li>
+                        {% if request.session.user_role == 'admin' %}
+                            <li class="nav-item"><a class="nav-link" href="/portal/admin/dashboard">Admin Dashboard</a></li>
+                            {% endif %}
+                        {% if request.session.user_role == 'provider' %}
+                            <li class="nav-item"><a class="nav-link" href="/provider/schedule">Profile</a></li>
+                            {% endif %}
+                                <li class="nav-item"><a class="nav-link" href="/about">About Us</a></li>
+                                <li class="nav-item"><a class="nav-link btn btn-outline-light btn-sm text-dark bg-white ms-2" href="/logout">Logout</a></li>
+                        {% else %}
+                            <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/about">About Us</a></li>
+                        {% endif %}
                 </ul>
             </div>
         </div>
@@ -33,7 +38,7 @@
             <div class="row justify-content-center">
                 <div class="col-md-8">
                     {% for message in messages %}
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
                             {{ message }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>

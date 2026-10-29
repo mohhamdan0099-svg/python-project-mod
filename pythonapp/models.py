@@ -21,8 +21,8 @@ class UserManager(models.Manager):
         if not EMAIL_REGEX.match(postData['email']):
             errors['email'] = 'Invalid email address format.'
 
-            if User.objects.filter(email=postData['email']).exists():
-                errors['email_exists'] = 'Email is already registered.'
+        if User.objects.filter(email=postData['email']).exists():
+            errors['email_exists'] = 'Email is already registered.'
 
         if len(postData['password']) < 8:
             errors['password'] = 'Password must be at least 8 characters.'
@@ -49,8 +49,8 @@ class UserManager(models.Manager):
     # If basic fields are filled, check credentials against database
         if not errors:
             user_list = User.objects.filter(email=postData['email'])
-        if len(user_list) == 0:
-            errors['login_credentials'] = 'Email not found. Please register first.'
+            if len(user_list) == 0:
+                errors['login_credentials'] = 'Email not found. Please register first.'
         else:
             user = user_list[0]
             # Verify password hash
@@ -111,6 +111,7 @@ class Appointment(models.Model):
 class Service(models.Model):
     provider = models.ForeignKey(ProviderProfile, on_delete=models.CASCADE, related_name='services')
     name = models.CharField(max_length=100)
+    category = models.CharField(max_length=50, default='Other')
     description = models.TextField()
     price = models.DecimalField(max_digits=8, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)

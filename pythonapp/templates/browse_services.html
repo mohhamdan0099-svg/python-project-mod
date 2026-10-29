@@ -4,35 +4,50 @@
 <div class="row mb-4">
     <div class="col-12"><h2 class="text-primary">Browse Services</h2><p class="text-muted">Find and book appointments with approved professional service providers.</p></div>
 </div>
-<div class="row mb-4">
-    <div class="col-md-12">
-        <div class="card shadow-sm p-3">
-            <form method="GET" class="row g-3">
-                <div class="col-md-9"><input type="text" class="form-control" name="search" placeholder="Search by service or professional..." value="{{ request.GET.search }}"></div>
-                <div class="col-md-3"><button type="submit" class="btn btn-primary w-100">Search</button></div>
-            </form>
+<div class="card shadow-sm p-3 mb-4">
+    <form method="GET" class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label">Search Services</label>
+            <input type="text" class="form-control" name="search" placeholder="Search by service name" value="{{ request.GET.search }}">
         </div>
-    </div>
+        <div class="col-md-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" name="category">
+                <option value="">All Categories</option>
+                <option value="Beauty">Beauty</option>
+                <option value="Wellness">Wellness</option>
+                <option value="Fitness">Fitness</option>
+                <option value="Consulting">Consulting</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Max Price ($)</label>
+            <input type="number" class="form-control" name="max_price" placeholder="e.g. 100" value="{{ request.GET.max_price }}">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+        </div>
+    </form>
 </div>
+
 <div class="row">
-    {% if providers %}
-        {% for profile in providers %}
-            <div class="col-md-4 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title text-dark">{{ profile.service_title }}</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">By {{ profile.user.first_name }} {{ profile.user.last_name }}</h6>
-                        <p class="card-text text-secondary mt-2">{{ profile.bio }}</p>
-                        <div class="mt-auto">
-                            <p class="fw-bold text-success">Price: ${{ profile.price }}</p>
-                            <a href="/book/{{ profile.id }}" class="btn btn-outline-primary w-100">Book Appointment</a>
-                        </div>
+    {% for s in services %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ s.name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ s.category }} · By {{ s.provider.user.first_name }}</h6>
+                    <p class="card-text text-secondary">{{ s.description }}</p>
+                    <div class="mt-auto">
+                        <p class="fw-bold">Price: ${{ s.price }}</p>
+                        <a href="/book/{{ s.provider.id }}" class="btn btn-success w-100">Book Now</a>
                     </div>
                 </div>
             </div>
-        {% endfor %}
-    {% else %}
-        <div class="col-12"><div class="alert alert-info text-center">No approved service providers found.</div></div>
-    {% endif %}
+        </div>
+    {% empty %}
+        <div class="col-12"><div class="alert alert-info text-center">No services found.</div></div>
+    {% endfor %}
 </div>
 {% endblock %}

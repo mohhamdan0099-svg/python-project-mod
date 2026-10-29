@@ -16,5 +16,5 @@ urlpatterns = [
     path('portal/admin/reject/<int:provider_id>', views.reject_provider, name='reject_provider'),
     path('about', views.about_us, name='about_us'),
     path('provider/service/remove/<int:service_id>', views.remove_service, name='remove_service'),
-    
+    path('appointment/cancel/<int:appointment_id>', views.cancel_appointment, name='cancel_appointment'),
 ]
