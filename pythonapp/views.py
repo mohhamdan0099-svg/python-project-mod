@@ -1,5 +1,8 @@
+from datetime import datetime
+
 import bcrypt
 from django.contrib import messages
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from .models import Appointment, ProviderProfile, TimeSlot, User, Service
 
@@ -124,81 +127,168 @@ def appointments(request):
 
 
 def book_appointment(request, provider_id):
-  if 'user_id' not in request.session:
-    return redirect('/')
-  if request.session.get('user_role') != 'client':
-    return redirect('/dashboard')
-  provider = get_object_or_404(ProviderProfile, id=provider_id)
-  available_slots = TimeSlot.objects.filter(
-      provider=provider, is_booked=False
-  ).order_by('date', 'start_time')
-  return render(
-      request,
-      'book_appointment.html',
-      {'provider': provider, 'available_slots': available_slots},
-  )
-
-
-def confirm_booking(request, slot_id):
-  if 'user_id' not in request.session:
-    return redirect('/')
-  if request.session.get('user_role') != 'client':
+    if 'user_id' not in request.session:
+        return redirect('/')
+    if request.session.get('user_role') != 'client':
         return redirect('/dashboard')
-  slot = get_object_or_404(TimeSlot, id=slot_id)
-  if not slot.is_booked:
+    provider = get_object_or_404(ProviderProfile, id=provider_id)
+
+    # only free slots that are NOT in the past
+    future_slots = TimeSlot.objects.upcoming().filter(provider=provider, is_booked=False)
+
+    # dates (as text) that have at least one open slot -> used by the calendar
+    available_dates = sorted({s.date.strftime('%Y-%m-%d') for s in future_slots})
+
+    return render(request, 'book_appointment.html', {
+        'provider': provider,
+        'services': provider.services.all(),
+        'available_dates': available_dates,
+    })
+
+
+def available_slots_api(request, provider_id):
+    """Our own API: returns the open times of one day as JSON."""
+    if 'user_id' not in request.session:
+        return JsonResponse({'error': 'Login required'}, status=401)
+    if request.session.get('user_role') != 'client':
+        return JsonResponse({'error': 'Clients only'}, status=403)
+
+    date = request.GET.get('date', '')
+    try:
+        datetime.strptime(date, '%Y-%m-%d')   # make sure the date format is valid
+    except ValueError:
+        return JsonResponse({'error': 'Invalid date'}, status=400)
+
+    slots = TimeSlot.objects.upcoming().filter(
+        provider_id=provider_id, is_booked=False, date=date
+    ).order_by('start_time')
+
+    data = [
+        {
+            'id': s.id,
+            'start': s.start_time.strftime('%H:%M'),
+            'end': s.end_time.strftime('%H:%M'),
+        }
+        for s in slots
+    ]
+    return JsonResponse({'date': date, 'slots': data})
+
+
+def confirm_booking(request):
+    if 'user_id' not in request.session:
+        return redirect('/')
+    if request.session.get('user_role') != 'client':
+        return redirect('/dashboard')
+    if request.method != 'POST':
+        return redirect('/services')
+
+    slot_id = request.POST.get('slot_id')
+    if not slot_id:
+        messages.error(request, 'Please choose a date and a time first.')
+        return redirect('/services')
+
+    slot = get_object_or_404(TimeSlot, id=slot_id)
+
+    if slot.is_booked:
+        messages.error(request, 'Sorry, this slot was just booked by someone else.')
+        return redirect(f'/book/{slot.provider.id}')
+    if slot.is_past():
+        messages.error(request, 'You cannot book a time in the past.')
+        return redirect(f'/book/{slot.provider.id}')
+
     slot.is_booked = True
     slot.save()
     client = User.objects.get(id=request.session['user_id'])
     Appointment.objects.create(client=client, time_slot=slot, status='Confirmed')
     messages.success(request, 'Appointment successfully booked!')
-  return redirect('/services')
+    return redirect('/appointments')
+
+
+def get_approved_provider(request):
+    """Return the logged-in provider's profile only if approved, otherwise None."""
+    if request.session.get('user_role') != 'provider':
+        return None
+    profile = ProviderProfile.objects.filter(user_id=request.session['user_id']).first()
+    if profile and profile.approval_status == 'Approved':
+        return profile
+    return None
 
 
 def manage_schedule(request):
-    if 'user_id' not in request.session:
-        return redirect('/')
-    user = User.objects.get(id=request.session['user_id'])
-    if user.role != 'provider':
-        return redirect('/dashboard')
-
-    profile, created = ProviderProfile.objects.get_or_create(
-        user=user,
-        defaults={
-            'service_title': 'Pending Service Setup',
-            'bio': 'Please update your professional bio and price.',
-            'price': 50.00,
-            'approval_status': 'Pending'
-        }
-    )
+    # This page handles TIME SLOTS only
+    profile = get_approved_provider(request)
+    if not profile:
+        messages.error(request, 'Only approved providers can manage time slots.')
+        return redirect('/dashboard' if 'user_id' in request.session else '/')
 
     if request.method == 'POST':
-        if 'update_profile' in request.POST:
-            profile.bio = request.POST['bio']
-            profile.save()
-            messages.success(request, "Profile updated successfully!")
-        elif 'add_slot' in request.POST:
+        errors = TimeSlot.objects.slot_validator(request.POST)
+        if errors:
+            for msg in errors.values():
+                messages.error(request, msg)
+        else:
             TimeSlot.objects.create(
                 provider=profile,
                 date=request.POST['date'],
                 start_time=request.POST['start_time'],
                 end_time=request.POST['end_time']
             )
-            messages.success(request, "Time slot added successfully!")
-        elif 'add_service' in request.POST:
-            Service.objects.create(
-                provider=profile,
-                name=request.POST['service_name'],
-                category=request.POST['category'],
-                description=request.POST['description'],
-                price=request.POST['price']
-            )
-            messages.success(request, "Service added successfully!")
+            messages.success(request, 'Time slot added successfully!')
         return redirect('/provider/schedule')
 
-    slots = TimeSlot.objects.filter(provider=profile).order_by('date')
-    services = Service.objects.filter(provider=profile)
-    return render(request, 'manage_schedule.html', {
-        'profile': profile, 'slots': slots, 'services': services
+    slots = TimeSlot.objects.upcoming().filter(provider=profile).order_by('date', 'start_time')
+    return render(request, 'manage_schedule.html', {'profile': profile, 'slots': slots})
+
+
+def remove_slot(request, slot_id):
+    profile = get_approved_provider(request)
+    if not profile:
+        return redirect('/')
+    slot = get_object_or_404(TimeSlot, id=slot_id, provider=profile)
+    if slot.is_booked:
+        messages.error(request, 'You cannot remove a slot that is already booked.')
+    else:
+        slot.delete()
+        messages.success(request, 'Time slot removed.')
+    return redirect('/provider/schedule')
+
+
+def provider_services(request):
+    # This page handles SERVICES and the bio only
+    profile = get_approved_provider(request)
+    if not profile:
+        messages.error(request, 'Only approved providers can manage services.')
+        return redirect('/dashboard' if 'user_id' in request.session else '/')
+
+    if request.method == 'POST':
+        if 'update_profile' in request.POST:
+            profile.bio = request.POST['bio']
+            profile.save()
+            messages.success(request, 'Profile updated successfully!')
+        elif 'add_service' in request.POST:
+            name = request.POST['service_name'].strip()
+            try:
+                price_ok = float(request.POST['price']) > 0
+            except ValueError:
+                price_ok = False
+
+            if not name:
+                messages.error(request, 'Service name is required.')
+            elif not price_ok:
+                messages.error(request, 'Price must be a number greater than 0.')
+            else:
+                Service.objects.create(
+                    provider=profile,
+                    name=name,
+                    category=request.POST['category'],
+                    description=request.POST['description'],
+                    price=request.POST['price']
+                )
+                messages.success(request, 'Service added successfully!')
+        return redirect('/provider/services')
+
+    return render(request, 'provider_services.html', {
+        'profile': profile, 'services': Service.objects.filter(provider=profile)
     })
 
 
@@ -216,15 +306,14 @@ def cancel_appointment(request, appointment_id):
     return redirect('/appointments')
 
 
-
-# Add a quick delete/remove service view:
 def remove_service(request, service_id):
     service = get_object_or_404(Service, id=service_id)
     # Ensure only the owner can delete it
     if service.provider.user.id == request.session.get('user_id'):
         service.delete()
         messages.success(request, "Service removed successfully.")
-    return redirect('/provider/schedule')
+    return redirect('/provider/services')
+
 
 def admin_dashboard(request):
   if 'user_id' not in request.session:
