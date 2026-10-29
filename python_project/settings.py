@@ -1,13 +1,13 @@
 
 import os
 from pathlib import Path
-from dotenv import load_dotenv
 
-from dotenv import load_dotenv
+
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / ".env")
+
 
 SECRET_KEY = os.getenv(
     "DJANGO_SECRET_KEY",
@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "pythonapp.apps.PythonappConfig",
+    "pythonapp",
 ]
 
 MIDDLEWARE = [
@@ -65,7 +65,7 @@ DATABASES = {
     }
 }
 
-AUTH_USER_MODEL = "pythonapp.User"
+# AUTH_USER_MODEL = "pythonapp.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -105,8 +105,8 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "home"
-LOGOUT_REDIRECT_URL = "home"
+LOGIN_REDIRECT_URL = "dashboard"
+LOGOUT_REDIRECT_URL = "index"
 
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
