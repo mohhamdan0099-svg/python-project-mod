@@ -1,44 +1,69 @@
 {% extends 'base.html' %}
 {% block title %}Book Appointment{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+{% endblock %}
 {% block content %}
-<div class="row mb-4">
+<div class="row mb-3">
     <div class="col-12">
         <h2 class="text-primary">Book Appointment</h2>
-        <p class="text-muted">Select an available time slot for {{ provider.service_title }} with {{ provider.user.first_name }} {{ provider.user.last_name }}.</p>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-4 mb-4">
-        <div class="card shadow-sm p-3">
-            <h4>Provider Details</h4>
-            <hr>
-            <p><strong>Service:</strong> {{ provider.service_title }}</p>
-            <p><strong>Professional:</strong> {{ provider.user.first_name }} {{ provider.user.last_name }}</p>
-            <p><strong>Bio:</strong> {{ provider.bio }}</p>
-            <p class="text-success fw-bold">Price: ${{ provider.price }}</p>
-            <a href="/services" class="btn btn-secondary btn-sm">Back to Services</a>
-        </div>
-    </div>
-    <div class="col-md-8">
-        <div class="card shadow-sm p-4">
-            <h4>Available Time Slots</h4>
-            <hr>
-            {% if available_slots %}
-                <div class="list-group">
-                    {% for slot in available_slots %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
-                            <div>
-                                <strong>Date:</strong> {{ slot.date }} &nbsp;|&nbsp; 
-                                <strong>Time:</strong> {{ slot.start_time }} - {{ slot.end_time }}
-                            </div>
-                            <a href="/book/slot/{{ slot.id }}" class="btn btn-success btn-sm">Confirm Booking</a>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-muted">No open time slots currently available for this provider.</p>
-            {% endif %}
-        </div>
-    </div>
+
+<!-- Provider and services -->
+<div class="card shadow-sm p-3 mb-4">
+    <p class="mb-1"><strong>{{ provider.service_title }}</strong> by {{ provider.user.first_name }} {{ provider.user.last_name }}</p>
+    <p class="text-muted mb-2">{{ provider.bio }}</p>
+    {% for s in services %}
+        <p class="mb-1">{{ s.name }} <span class="badge bg-secondary">{{ s.category }}</span> <span class="fw-bold text-success">${{ s.price }}</span></p>
+    {% endfor %}
 </div>
+
+<div class="card shadow-sm p-4 mb-4">
+    {% if available_dates %}
+        <h4>Select Date and Time</h4>
+        <p class="text-muted small">Only days with open slots can be clicked.</p>
+        <input type="text" id="booking-date" class="d-none">
+
+        <h5 class="mt-4">Available Time Slots</h5>
+        <form method="POST" action="/book/confirm">
+            {% csrf_token %}
+            <div id="slots-box"><p class="text-muted">Select a date on the calendar.</p></div>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">Confirm Booking</button>
+                <a href="/services" class="btn btn-secondary">Back to Services</a>
+            </div>
+        </form>
+    {% else %}
+        <p class="text-muted">No open time slots currently available for this provider.</p>
+        <a href="/services" class="btn btn-secondary">Back to Services</a>
+    {% endif %}
+</div>
+
+{{ available_dates|json_script:"available-dates" }}
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script>
+    var availableDates = JSON.parse(document.getElementById('available-dates').textContent);
+
+    flatpickr("#booking-date", {
+        inline: true,                 // show the calendar directly on the page
+        enable: availableDates,       // only days that have open slots are clickable
+        onChange: function (selectedDates, dateStr) {
+            // ask OUR API for the slots of the chosen day (no page reload)
+            fetch("/api/provider/{{ provider.id }}/slots?date=" + dateStr)
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    var box = document.getElementById('slots-box');
+                    var html = '';
+                    data.slots.forEach(function (s) {
+                        html += '<input type="radio" class="btn-check" name="slot_id" id="slot' + s.id + '" value="' + s.id + '" required>' +
+                                '<label class="btn btn-outline-primary me-2 mb-2" for="slot' + s.id + '">' + s.start + ' - ' + s.end + '</label>';
+                    });
+                    box.innerHTML = html || '<p class="text-muted">No open times on this day.</p>';
+                });
+        }
+    });
+</script>
 {% endblock %}

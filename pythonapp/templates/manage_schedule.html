@@ -1,94 +1,66 @@
 {% extends 'base.html' %}
-{% block title %}Manage Schedule & Profile{% endblock %}
+{% block title %}Manage Time Slots{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+{% endblock %}
 {% block content %}
 <div class="row mb-4">
-    <div class="col-12"><h2 class="text-primary">Manage Schedule & Profile</h2></div>
+    <div class="col-12">
+        <h2 class="text-primary">Manage Time Slots</h2>
+        <p class="text-muted">Choose a date from the calendar and add the times you are available.</p>
+    </div>
 </div>
 <div class="row">
-    <!-- Profile & Bio Update -->
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm p-4">
-            <h4>Update Profile Bio</h4>
-            <hr>
-            <form method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="update_profile" value="1">
-                <div class="mb-3"><label class="form-label">Bio / Description</label><textarea class="form-control" name="bio" rows="3" required>{{ profile.bio }}</textarea></div>
-                <button type="submit" class="btn btn-primary w-100">Save Changes</button>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Add Time Slot -->
-    <div class="col-md-6 mb-4">
+    <div class="col-md-5 mb-4">
         <div class="card shadow-sm p-4">
             <h4>Add Available Time Slot</h4>
             <hr>
             <form method="POST">
                 {% csrf_token %}
-                <input type="hidden" name="add_slot" value="1">
-                <div class="mb-3"><label class="form-label">Date</label><input type="date" class="form-control" name="date" required></div>
+                <div class="mb-3">
+                    <label class="form-label">Date</label>
+                    <input type="text" id="slot-date" class="form-control" name="date" placeholder="Click to open calendar" required>
+                </div>
                 <div class="mb-3"><label class="form-label">Start Time</label><input type="time" class="form-control" name="start_time" required></div>
                 <div class="mb-3"><label class="form-label">End Time</label><input type="time" class="form-control" name="end_time" required></div>
                 <button type="submit" class="btn btn-success w-100">Add Time Slot</button>
             </form>
         </div>
     </div>
-</div>
-
-<!-- Manage Services Section (Matching Wireframe) -->
-<div class="row mb-4">
-    <div class="col-md-12">
+    <div class="col-md-7 mb-4">
         <div class="card shadow-sm p-4">
-            <h4>Manage Services</h4>
+            <h4>Your Upcoming Slots</h4>
             <hr>
-            <form method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="add_service" value="1">
-                <div class="mb-3">
-                    <label class="form-label">Service Name</label>
-                    <input type="text" class="form-control" name="service_name" placeholder="e.g., Haircut, Consultation" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Category</label>
-                    <select class="form-select" name="category">
-                        <option value="Beauty">Beauty</option>
-                        <option value="Wellness">Wellness</option>
-                        <option value="Fitness">Fitness</option>
-                        <option value="Consulting">Consulting</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Description</label>
-                    <textarea class="form-control" name="description" placeholder="Briefly describe your service" rows="2" required></textarea>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Price ($)</label>
-                    <input type="number" step="0.01" class="form-control" name="price" placeholder="e.g., 50.00" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Add Service</button>
-            </form>
-
-            <h4 class="mt-4">Your Current Services</h4>
-            <hr>
-            {% if services %}
+            {% if slots %}
                 <div class="list-group">
-                    {% for s in services %}
+                    {% for slot in slots %}
                         <div class="list-group-item d-flex justify-content-between align-items-center">
                             <div>
-                                <h5 class="mb-1">{{ s.name }}</h5>
-                                <p class="mb-1 text-muted">{{ s.description }}</p>
-                                <small class="fw-bold text-success">Price: ${{ s.price }}</small>
+                                <strong>{{ slot.date|date:"D, d M Y" }}</strong>
+                                | {{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}
+                                {% if slot.is_booked %}
+                                    <span class="badge bg-danger ms-2">Booked</span>
+                                {% else %}
+                                    <span class="badge bg-success ms-2">Open</span>
+                                {% endif %}
                             </div>
-                            <a href="/provider/service/remove/{{ s.id }}" class="btn btn-danger btn-sm">Remove</a>
+                            {% if not slot.is_booked %}
+                                <a href="/provider/slot/remove/{{ slot.id }}" class="btn btn-outline-danger btn-sm">Remove</a>
+                            {% endif %}
                         </div>
                     {% endfor %}
                 </div>
             {% else %}
-                <p class="text-muted">You haven't added any services yet.</p>
+                <p class="text-muted">You have no upcoming time slots yet.</p>
             {% endif %}
         </div>
     </div>
 </div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script>
+    // minDate: "today" greys out every past day in the calendar
+    flatpickr("#slot-date", { minDate: "today", dateFormat: "Y-m-d" });
+</script>
 {% endblock %}
