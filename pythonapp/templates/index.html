@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Welcome - Appointment Booking Platform{% endblock %}
+{% block extra_css %}
+<style>
+    body {
+        background: url("{% static 'images/login-bg.jpg' %}") no-repeat center center fixed !important;
+        background-size: cover !important;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6 mb-4">
+        <div class="card shadow-sm" style="background-color: rgba(255,255,255,0.92);">
+            <div class="card-body">
+                <h3 class="card-title mb-3 text-primary">Register</h3>
+                <form action="/register" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3"><label class="form-label">First Name</label><input type="text" class="form-control" name="first_name" required></div>
+                    <div class="mb-3"><label class="form-label">Last Name</label><input type="text" class="form-control" name="last_name" required></div>
+                    <div class="mb-3"><label class="form-label">Email address</label><input type="email" class="form-control" name="email" required></div>
+                    <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" name="password" required></div>
+                    <div class="mb-3"><label class="form-label">Confirm Password</label><input type="password" class="form-control" name="confirm_password" required></div>
+                    <div class="mb-3">
+                        <label class="form-label">Register As:</label>
+                        <select class="form-select" name="role">
+                            <option value="client" selected>Client (Customer)</option>
+                            <option value="provider">Professional Service Provider</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card shadow-sm" style="background-color: rgba(255,255,255,0.92);">
+            <div class="card-body">
+                <h3 class="card-title mb-3 text-success">Sign In</h3>
+                <form action="/login" method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3"><label class="form-label">Email address</label><input type="email" class="form-control" name="email" required></div>
+                    <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" name="password" required></div>
+                    <button type="submit" class="btn btn-success w-100">Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

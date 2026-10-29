@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Dashboard - Appointment Booking{% endblock %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="p-4 bg-white rounded shadow-sm border">
+            <h1 class="display-6 text-dark">Welcome, {{ user.first_name }}!</h1>
+            <p class="text-muted mb-0">Role: <span class="badge bg-secondary text-capitalize">{{ user.role }}</span></p>
+        </div>
+    </div>
+</div>
+
+{% if user.role == 'client' %}
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm"><div class="card-body">
+                <h5 class="card-title">Browse Services</h5>
+                <p class="text-muted">Find available services from professionals.</p>
+                <a href="/services" class="btn btn-primary w-100">Browse Services</a>
+            </div></div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm"><div class="card-body">
+                <h5 class="card-title">Upcoming Appointments</h5>
+                <p class="text-muted">View and manage your scheduled appointments.</p>
+                <a href="/appointments" class="btn btn-primary w-100">View Appointments</a>
+            </div></div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm"><div class="card-body">
+                <h5 class="card-title">About Us</h5>
+                <p class="text-muted">Learn more about our platform.</p>
+                <a href="/about" class="btn btn-primary w-100">About Us</a>
+            </div></div>
+        </div>
+    </div>
+
+    <!-- How it works / advertising section -->
+    <h3 class="mt-4 mb-3">Why book with us?</h3>
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{% static 'images/browse.jpg' %}" class="card-img-top" alt="Browse services" style="height:180px; object-fit:cover;">
+                <div class="card-body">
+                    <h5 class="card-title">Find the right professional</h5>
+                    <p class="text-muted">Search by service, category or price and compare approved providers in one place.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{% static 'images/book.jpg' %}" class="card-img-top" alt="Book easily" style="height:180px; object-fit:cover;">
+                <div class="card-body">
+                    <h5 class="card-title">Book in a few clicks</h5>
+                    <p class="text-muted">Pick a day and a time that suits you. No phone calls and no waiting.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                <img src="{% static 'images/offer.jpg' %}" class="card-img-top" alt="Special offer" style="height:180px; object-fit:cover;">
+                <div class="card-body">
+                    <h5 class="card-title">Special offers</h5>
+                    <p class="text-muted">New here? Check the Services page for great prices from our professionals.</p>
+                    <a href="/services" class="btn btn-success">See Offers</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% elif user.role == 'provider' %}
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="card shadow-sm p-4">
+                <h3>Approval Status: 
+                    <span class="badge {% if profile.approval_status == 'Approved' %}bg-success{% elif profile.approval_status == 'Pending' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                        {{ profile.approval_status }}
+                    </span>
+                </h3>
+                {% if profile.approval_status == 'Approved' %}
+                    <p class="text-muted mt-2">Your profile is approved. You can manage your service offerings and open up time slots for clients.</p>
+                    <!-- Make sure this link points correctly to your schedule route -->
+                    <a href="/provider/schedule" class="btn btn-warning">Manage Schedule & Services</a>
+                {% else %}
+                    <p class="text-muted mt-2">Your registration is currently pending admin approval. Once approved, you can add time slots and services.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

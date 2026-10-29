@@ -1,55 +1,21 @@
-
-from django.contrib.auth import views as auth_views
 from django.urls import path
-
 from . import views
 
 urlpatterns = [
-    path("", views.home, name="home"),
-    path("about/", views.about, name="about"),
-    path("register/", views.register, name="register"),
-    path(
-        "login/",
-        auth_views.LoginView.as_view(
-            template_name="pythonapp/login.html"
-        ),
-        name="login",
-    ),
-    path(
-        "logout/",
-        auth_views.LogoutView.as_view(),
-        name="logout",
-    ),
-    path("services/", views.services_list, name="services"),
-    path(
-        "services/<int:service_id>/",
-        views.service_detail,
-        name="service_detail",
-    ),
-    path(
-        "services/<int:service_id>/book/",
-        views.book_service,
-        name="book_service",
-    ),
-    path(
-        "api/services/<int:service_id>/availability/",
-        views.available_slots,
-        name="available_slots",
-    ),
-    path(
-        "api/ai-recommendations/",
-        views.ai_recommendations,
-        name="ai_recommendations",
-    ),
-    path("appointments/", views.my_appointments, name="my_appointments"),
-    path(
-        "appointments/<int:appointment_id>/cancel/",
-        views.cancel_appointment,
-        name="cancel_appointment",
-    ),
-    path(
-        "provider/dashboard/",
-        views.provider_dashboard,
-        name="provider_dashboard",
-    ),
+    path('', views.index, name='index'),
+    path('register', views.register, name='register'),
+    path('login', views.login, name='login'),
+    path('logout', views.logout, name='logout'),
+    path('dashboard', views.dashboard, name='dashboard'),
+    path('services', views.browse_services, name='browse_services'),
+    path('appointments', views.appointments, name='appointments'),
+    path('book/<int:provider_id>', views.book_appointment, name='book_appointment'),
+    path('book/slot/<int:slot_id>',views.confirm_booking,name='confirm_booking',),
+    path('provider/schedule', views.manage_schedule, name='manage_schedule'),
+    path('portal/admin/dashboard', views.admin_dashboard, name='admin_dashboard'),
+    path('portal/admin/approve/<int:provider_id>', views.approve_provider, name='approve_provider'),
+    path('portal/admin/reject/<int:provider_id>', views.reject_provider, name='reject_provider'),
+    path('about', views.about_us, name='about_us'),
+    path('provider/service/remove/<int:service_id>', views.remove_service, name='remove_service'),
+    path('appointment/cancel/<int:appointment_id>', views.cancel_appointment, name='cancel_appointment'),
 ]
