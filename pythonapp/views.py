@@ -14,28 +14,39 @@ def index(request):
 
 
 def register(request):
-  if request.method == 'POST':
-    errors = User.objects.register_validator(request.POST)
-    if len(errors) > 0:
-      for key, value in errors.items():
-        messages.error(request, value)
-      return redirect('/')
+  if 'user_id' in request.session:
+    return redirect('/dashboard')
 
-    hashed_password = bcrypt.hashpw(
-        request.POST['password'].encode(), bcrypt.gensalt()
-    ).decode()
+  # GET -> show the register page
+  if request.method != 'POST':
+    return render(request, 'register.html')
 
-    role = request.POST.get('role', 'client')
-    new_user = User.objects.create(
-        first_name=request.POST['first_name'],
-        last_name=request.POST['last_name'],
-        email=request.POST['email'],
-        password=hashed_password,
-        role=role,
-    )
+  # POST -> process the form
+  errors = User.objects.register_validator(request.POST)
+  if len(errors) > 0:
+    for key, value in errors.items():
+      messages.error(request, value)
+    return redirect('/register')
 
-    if role == 'provider':
-      ProviderProfile.objects.create(
+  hashed_password = bcrypt.hashpw(
+      request.POST['password'].encode(), bcrypt.gensalt()
+  ).decode()
+
+  # only these two roles can be chosen from the form (admin can't be faked)
+  role = request.POST.get('role', 'client')
+  if role not in ('client', 'provider'):
+    role = 'client'
+
+  new_user = User.objects.create(
+      first_name=request.POST['first_name'],
+      last_name=request.POST['last_name'],
+      email=request.POST['email'],
+      password=hashed_password,
+      role=role,
+  )
+
+  if role == 'provider':
+    ProviderProfile.objects.create(
         user=new_user,
         service_title='Pending Service Setup',
         bio='Please update your professional bio and price.',
@@ -43,29 +54,34 @@ def register(request):
         approval_status='Pending',
     )
 
-    request.session['user_id'] = new_user.id
-    request.session['user_name'] = new_user.first_name
-    request.session['user_role'] = new_user.role
+  request.session['user_id'] = new_user.id
+  request.session['user_name'] = new_user.first_name
+  request.session['user_role'] = new_user.role
 
-    messages.success(request, 'Successfully registered!')
-    return redirect('/dashboard')
-  return redirect('/')
+  messages.success(request, 'Successfully registered!')
+  return redirect('/dashboard')
 
 
 def login(request):
-  if request.method == 'POST':
-    errors = User.objects.login_validator(request.POST)
-    if len(errors) > 0:
-      for key, value in errors.items():
-        messages.error(request, value)
-      return redirect('/')
-
-    user = User.objects.get(email=request.POST['email'])
-    request.session['user_id'] = user.id
-    request.session['user_name'] = user.first_name
-    request.session['user_role'] = user.role
+  if 'user_id' in request.session:
     return redirect('/dashboard')
-  return redirect('/')
+
+  # GET -> show the login page
+  if request.method != 'POST':
+    return render(request, 'login.html')
+
+  # POST -> process the form
+  errors = User.objects.login_validator(request.POST)
+  if len(errors) > 0:
+    for key, value in errors.items():
+      messages.error(request, value)
+    return redirect('/login')
+
+  user = User.objects.get(email=request.POST['email'])
+  request.session['user_id'] = user.id
+  request.session['user_name'] = user.first_name
+  request.session['user_role'] = user.role
+  return redirect('/dashboard')
 
 
 def logout(request):

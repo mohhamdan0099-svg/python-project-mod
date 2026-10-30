@@ -1,51 +1,114 @@
 {% extends 'base.html' %}
-{% load static %}
-{% block title %}Welcome - Appointment Booking Platform{% endblock %}
+{% block title %}Appointly - Book Your Next Appointment in Seconds{% endblock %}
 {% block extra_css %}
 <style>
-    body {
-        background: url("{% static 'images/login-bg.jpg' %}") no-repeat center center fixed !important;
-        background-size: cover !important;
+    /* small preview card inside the hero */
+    .preview-card {
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.25);
+        -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+        border-radius: 18px; padding: 22px; color: #fff; text-align: left;
+        box-shadow: 0 20px 40px rgba(0,0,0,.25);
+        animation: ap-float 9s ease-in-out infinite alternate;
     }
+    .preview-card .mini-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .preview-card .mini-days span {
+        text-align: center; font-size: .75rem; padding: 6px 0; border-radius: 8px;
+        background: rgba(255,255,255,.08); color: rgba(255,255,255,.55);
+    }
+    .preview-card .mini-days span.open { background: rgba(255,255,255,.2); color: #fff; }
+    .preview-card .mini-days span.picked { background: var(--ap-gold); color: var(--ap-navy); font-weight: 600; }
+    .preview-card .slot {
+        display: inline-block; padding: 6px 12px; margin: 4px 4px 0 0; border-radius: 10px;
+        font-size: .8rem; background: rgba(255,255,255,.15);
+    }
+    .preview-card .slot.picked { background: var(--ap-indigo); }
 </style>
 {% endblock %}
 {% block content %}
-<div class="row justify-content-center mt-4">
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm" style="background-color: rgba(255,255,255,0.92);">
-            <div class="card-body">
-                <h3 class="card-title mb-3 text-primary">Register</h3>
-                <form action="/register" method="POST">
-                    {% csrf_token %}
-                    <div class="mb-3"><label class="form-label">First Name</label><input type="text" class="form-control" name="first_name" required></div>
-                    <div class="mb-3"><label class="form-label">Last Name</label><input type="text" class="form-control" name="last_name" required></div>
-                    <div class="mb-3"><label class="form-label">Email address</label><input type="email" class="form-control" name="email" required></div>
-                    <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" name="password" required></div>
-                    <div class="mb-3"><label class="form-label">Confirm Password</label><input type="password" class="form-control" name="confirm_password" required></div>
-                    <div class="mb-3">
-                        <label class="form-label">Register As:</label>
-                        <select class="form-select" name="role">
-                            <option value="client" selected>Client (Customer)</option>
-                            <option value="provider">Professional Service Provider</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Register</button>
-                </form>
+
+<!-- Hero -->
+<div class="hero mb-5">
+    <div class="row align-items-center g-5">
+        <div class="col-lg-7 text-center text-lg-start">
+            <span class="badge bg-warning text-dark mb-3 px-3 py-2">Smart appointment booking</span>
+            <h1 class="display-4 fw-bold">Your time. <span style="color:#F59E0B;">Booked.</span></h1>
+            <p class="lead mb-4" style="color:rgba(255,255,255,.8);">
+                Appointly connects you with trusted professionals. Pick a service, choose a day on the calendar, and confirm your appointment in seconds.
+            </p>
+            <a href="/register" class="btn btn-accent btn-lg px-4 me-2">Get Started</a>
+            <a href="/login" class="btn btn-outline-light btn-lg px-4">Login</a>
+        </div>
+        <div class="col-lg-5 d-none d-lg-block">
+            <!-- Example preview (illustration only) -->
+            <div class="preview-card">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <strong><i class="bi bi-calendar3"></i> Pick a day</strong>
+                    <small style="color:rgba(255,255,255,.6);">Example</small>
+                </div>
+                <div class="mini-days mb-3">
+                    <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+                    <span class="open">3</span><span class="open">4</span><span class="picked">5</span><span class="open">6</span><span>7</span><span class="open">8</span><span>9</span>
+                </div>
+                <strong class="d-block mb-1"><i class="bi bi-clock"></i> Pick a time</strong>
+                <span class="slot">09:00</span><span class="slot picked">10:30</span><span class="slot">13:00</span><span class="slot">15:30</span>
+                <div class="mt-3">
+                    <span class="badge bg-success"><i class="bi bi-check2-circle"></i> Confirmed</span>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-5">
-        <div class="card shadow-sm" style="background-color: rgba(255,255,255,0.92);">
-            <div class="card-body">
-                <h3 class="card-title mb-3 text-success">Sign In</h3>
-                <form action="/login" method="POST">
-                    {% csrf_token %}
-                    <div class="mb-3"><label class="form-label">Email address</label><input type="email" class="form-control" name="email" required></div>
-                    <div class="mb-3"><label class="form-label">Password</label><input type="password" class="form-control" name="password" required></div>
-                    <button type="submit" class="btn btn-success w-100">Login</button>
-                </form>
-            </div>
+</div>
+
+<!-- Features -->
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card card-hover h-100 p-4 text-center">
+            <div class="icon-circle mx-auto mb-3"><i class="bi bi-search"></i></div>
+            <h5>Find the right professional</h5>
+            <p class="text-muted mb-0">Search by service, category or price and compare approved providers in one place.</p>
         </div>
     </div>
+    <div class="col-md-4">
+        <div class="card card-hover h-100 p-4 text-center">
+            <div class="icon-circle icon-gold mx-auto mb-3"><i class="bi bi-calendar3"></i></div>
+            <h5>Pick a day, pick a time</h5>
+            <p class="text-muted mb-0">A clear calendar shows only the days with open slots. Past dates are never available.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-hover h-100 p-4 text-center">
+            <div class="icon-circle mx-auto mb-3"><i class="bi bi-patch-check"></i></div>
+            <h5>Verified providers</h5>
+            <p class="text-muted mb-0">Every professional is reviewed and approved by our admin before appearing on the platform.</p>
+        </div>
+    </div>
+</div>
+
+<!-- How it works -->
+<h3 class="text-center fw-bold mb-4">How it works</h3>
+<div class="row g-4 text-center mb-5">
+    <div class="col-md-4">
+        <h1 class="text-primary fw-bold">1</h1>
+        <h5>Create an account</h5>
+        <p class="text-muted">Sign up as a client or as a professional.</p>
+    </div>
+    <div class="col-md-4">
+        <h1 class="text-primary fw-bold">2</h1>
+        <h5>Choose a service</h5>
+        <p class="text-muted">Browse services and open the provider's calendar.</p>
+    </div>
+    <div class="col-md-4">
+        <h1 class="text-primary fw-bold">3</h1>
+        <h5>Confirm your slot</h5>
+        <p class="text-muted">Select a time and your appointment is booked.</p>
+    </div>
+</div>
+
+<!-- Call to action -->
+<div class="hero text-center py-5">
+    <h2 class="fw-bold">Ready to save time?</h2>
+    <p style="color:rgba(255,255,255,.8);">Join Appointly today.</p>
+    <a href="/register" class="btn btn-accent btn-lg px-4">Create your free account</a>
 </div>
 {% endblock %}

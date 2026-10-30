@@ -1,30 +1,35 @@
 {% extends 'base.html' %}
-{% block title %}My Appointments{% endblock %}
+{% block title %}My Appointments - Appointly{% endblock %}
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <h2 class="text-primary">My Appointments</h2>
-        <p class="text-muted">View and manage your booked appointments.</p>
-    </div>
+<div class="page-head">
+    <h2>My Appointments</h2>
+    <p>View and manage your booked appointments.</p>
 </div>
 
-<div class="card shadow-sm p-4">
-    {% if appointments %}
-        {% for appt in appointments %}
-            <div class="border rounded p-3 mb-3 d-flex justify-content-between align-items-center">
-                <div>
+{% if appointments %}
+    {% for appt in appointments %}
+        <div class="card p-3 mb-3">
+            <div class="d-flex align-items-center flex-wrap gap-3">
+                <div class="date-box">
+                    <div class="day">{{ appt.time_slot.date|date:"d" }}</div>
+                    <small>{{ appt.time_slot.date|date:"M Y" }}</small>
+                </div>
+                <div class="flex-grow-1">
                     <h5 class="mb-1">{{ appt.time_slot.provider.service_title }}</h5>
                     <p class="mb-1 text-muted">With {{ appt.time_slot.provider.user.first_name }} {{ appt.time_slot.provider.user.last_name }}</p>
-                    <small>Date: {{ appt.time_slot.date }} | Time: {{ appt.time_slot.start_time }} - {{ appt.time_slot.end_time }}</small>
+                    <small><i class="bi bi-clock"></i> {{ appt.time_slot.start_time|time:"H:i" }} - {{ appt.time_slot.end_time|time:"H:i" }}</small>
                     <span class="badge bg-success ms-2">{{ appt.status }}</span>
                 </div>
-                <a href="/appointment/cancel/{{ appt.id }}" class="btn btn-danger"
-                onclick="return confirm('Cancel this appointment?')">Cancel</a>
+                <a href="/appointment/cancel/{{ appt.id }}" class="btn btn-outline-danger"
+                   onclick="return confirm('Cancel this appointment?')">Cancel</a>
             </div>
-        {% endfor %}
-    {% else %}
+        </div>
+    {% endfor %}
+{% else %}
+    <div class="card p-5 text-center">
+        <div class="icon-circle mx-auto mb-3"><i class="bi bi-calendar-x"></i></div>
         <p class="text-muted">You have no appointments yet.</p>
-        <a href="/services" class="btn btn-primary">Browse Services</a>
-    {% endif %}
-</div>
+        <a href="/services" class="btn btn-primary align-self-center">Browse Services</a>
+    </div>
+{% endif %}
 {% endblock %}
