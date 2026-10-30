@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Login - Appointly{% endblock %}
+{% block extra_css %}
+<style>
+    .auth-wrap { max-width: 440px; margin: 30px auto; }
+    .auth-card { padding: 36px 32px; border-top: 5px solid var(--ap-indigo); }
+    .auth-icon {
+        width: 64px; height: 64px; border-radius: 50%; margin: -68px auto 16px;
+        display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+        background: var(--ap-indigo); color: #fff; box-shadow: 0 6px 16px rgba(79,70,229,.35);
+    }
+    .auth-card .input-group-text { background: #fff; color: var(--ap-indigo); border-radius: 10px 0 0 10px; }
+    .auth-card .input-group .form-control { border-radius: 0 10px 10px 0; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+    <div class="text-center mb-5 pt-3">
+        <h2 class="fw-bold">Welcome back</h2>
+        <p class="text-muted mb-0">Login to Appointly to manage your appointments</p>
+    </div>
+
+    <div class="card auth-card">
+        <div class="auth-icon"><i class="bi bi-person-lock"></i></div>
+        <h4 class="text-center fw-bold mb-4">Login to Appointly</h4>
+
+        <form action="/login" method="POST">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Email address</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                    <input type="email" class="form-control" name="email" placeholder="Enter your email" required>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="form-label">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input type="password" class="form-control" name="password" placeholder="Enter your password" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100 py-2">Login</button>
+        </form>
+
+        <p class="text-center text-muted mt-4 mb-0">
+            Don't have an account? <a href="/register" class="fw-semibold text-decoration-none">Register</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

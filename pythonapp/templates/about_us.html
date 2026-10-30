@@ -1,22 +1,91 @@
 {% extends 'base.html' %}
-{% block title %}About Us - Appointment Booking Platform{% endblock %}
+{% block title %}About Appointly{% endblock %}
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm p-4">
-            <h2 class="text-primary mb-3">About Our Platform</h2>
-            <p class="text-muted">Welcome to our multi-service appointment booking system! We provide a seamless platform connecting professionals from various fields with clients seeking their services.</p>
-            <p class="text-muted">Our goal is to simplify the process of discovering, booking, and managing appointments for everyone. Whether you are a client looking for a specific service or a professional aiming to expand your reach and manage your schedule efficiently, our platform is designed to meet your needs.</p>
-            <h5 class="mt-4">Key Features:</h5>
-            <ul>
-                <li>Easy registration and secure login for both clients and professionals.</li>
-                <li>Comprehensive professional profiles with service descriptions, pricing, and availability.</li>
-                <li>Intuitive browsing and searching for services.</li>
-                <li>Interactive time slot calendar view for booking appointments.</li>
-                <li>Personalized dashboards for managing appointments and schedules.</li>
-            </ul>
-            <a href="/" class="btn btn-secondary mt-3">Back to Home</a>
+
+<!-- Hero -->
+<div class="hero text-center mb-5">
+    <span class="badge bg-warning text-dark mb-3 px-3 py-2">About Appointly</span>
+    <h1 class="display-5 fw-bold">Stop waiting. <span style="color:#F59E0B;">Start booking.</span></h1>
+    <p class="lead mx-auto mb-0" style="max-width:660px; color:rgba(255,255,255,.8);">
+        Appointly is the smartest way to meet the professionals you need. No phone calls, no back-and-forth messages, no wasted time.
+    </p>
+</div>
+
+<!-- Why Appointly -->
+<h3 class="text-center fw-bold mb-4">Why choose Appointly?</h3>
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card card-hover h-100 p-4">
+            <div class="icon-circle mb-3"><i class="bi bi-lightning-charge"></i></div>
+            <h5>Book in seconds</h5>
+            <p class="text-muted mb-0">See real availability on a clean calendar and lock your time with one click. Your appointment is confirmed instantly.</p>
         </div>
     </div>
+    <div class="col-md-4">
+        <div class="card card-hover h-100 p-4">
+            <div class="icon-circle icon-gold mb-3"><i class="bi bi-shield-check"></i></div>
+            <h5>Trusted professionals</h5>
+            <p class="text-muted mb-0">Every provider is reviewed and approved before they can offer a single service. You book with confidence.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-hover h-100 p-4">
+            <div class="icon-circle mb-3"><i class="bi bi-grid"></i></div>
+            <h5>Every service, one place</h5>
+            <p class="text-muted mb-0">Beauty, wellness, fitness, consulting and more. Search, filter by price and compare in one place.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Two audiences -->
+<div class="row g-4 mb-5">
+    <div class="col-md-6">
+        <div class="card h-100 p-4">
+            <h4 class="text-primary fw-bold"><i class="bi bi-person-heart"></i> For clients</h4>
+            <ul class="list-unstyled mt-3 mb-4">
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-warning"></i> Browse and filter services by category and price</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-warning"></i> See only the days that are really available</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-warning"></i> Book and cancel from your own dashboard</li>
+            </ul>
+            <a href="/register" class="btn btn-primary mt-auto align-self-start">Book your first appointment</a>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100 p-4">
+            <h4 class="text-primary fw-bold"><i class="bi bi-briefcase"></i> For professionals</h4>
+            <ul class="list-unstyled mt-3 mb-4">
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-warning"></i> Showcase your services, bio and prices</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-warning"></i> You decide the days and hours you work</li>
+                <li class="mb-2"><i class="bi bi-check-circle-fill text-warning"></i> Let clients fill your calendar automatically</li>
+            </ul>
+            <a href="/register" class="btn btn-accent mt-auto align-self-start">Grow your business</a>
+        </div>
+    </div>
+</div>
+
+<!-- Team -->
+<h3 class="text-center fw-bold mb-4">Meet the team</h3>
+<div class="row g-4 justify-content-center mb-5">
+    <div class="col-md-4">
+        <div class="card p-4 text-center h-100">
+            <div class="icon-circle mx-auto mb-3"><i class="bi bi-person-fill"></i></div>
+            <h5 class="mb-1">Yousef Massad</h5>
+            <p class="text-muted mb-0">Project Owner &amp; Developer</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card p-4 text-center h-100">
+            <div class="icon-circle icon-gold mx-auto mb-3"><i class="bi bi-person-fill"></i></div>
+            <h5 class="mb-1">Mohammad Hamdan</h5>
+            <p class="text-muted mb-0">Project Owner &amp; Developer</p>
+        </div>
+    </div>
+</div>
+
+<!-- CTA -->
+<div class="hero text-center py-5">
+    <h2 class="fw-bold">Your next appointment is a click away.</h2>
+    <p style="color:rgba(255,255,255,.8);">Join Appointly and take back your time.</p>
+    <a href="/register" class="btn btn-accent btn-lg px-4">Get Started</a>
 </div>
 {% endblock %}
