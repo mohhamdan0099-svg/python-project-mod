@@ -1,226 +1,97 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Appointly - Smart Appointment Booking{% endblock %}</title>
+    <title>{% block title %}Mawid{% endblock %} | Mawid</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        /* ====== The 3 main colors of Appointly ====== */
-        :root {
-            --ap-navy:   #0F172A;   /* dark: navbar, footer */
-            --ap-indigo: #4F46E5;   /* main: buttons, links */
-            --ap-gold:   #F59E0B;   /* accent: highlights */
-            --ap-bg:     #F6F7FB;   /* page background */
-        }
-
-        /* ====== Background (pure CSS, no photo) ====== */
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--ap-bg);
-            background-image:
-                radial-gradient(at 10% 5%,  rgba(79,70,229,.18) 0, transparent 45%),
-                radial-gradient(at 90% 10%, rgba(245,158,11,.16) 0, transparent 40%),
-                radial-gradient(at 50% 100%, rgba(79,70,229,.12) 0, transparent 50%);
-            background-attachment: fixed;
-        }
-        /* soft dot grid */
-        body::before {
-            content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
-            background-image: radial-gradient(rgba(15,23,42,.12) 1px, transparent 1px);
-            background-size: 26px 26px;
-            -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 75%);
-                    mask-image: linear-gradient(to bottom, #000 0%, transparent 75%);
-        }
-        /* floating glow blobs */
-        body::after {
-            content: ""; position: fixed; z-index: -1; pointer-events: none;
-            width: 460px; height: 460px; right: -140px; top: 22%;
-            border-radius: 50%; filter: blur(90px); opacity: .35;
-            background: radial-gradient(circle, var(--ap-indigo), transparent 70%);
-            animation: ap-float 14s ease-in-out infinite alternate;
-        }
-        @keyframes ap-float {
-            from { transform: translate(0, 0) scale(1); }
-            to   { transform: translate(-60px, 70px) scale(1.15); }
-        }
-        @media (prefers-reduced-motion: reduce) {
-            body::after, .ap-float { animation: none; }
-        }
-
-        /* Navbar (glass) */
-        .navbar-ap {
-            background: rgba(15,23,42,.88);
-            -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255,255,255,.08);
-        }
-        .navbar-ap .navbar-brand { font-weight: 700; font-size: 1.4rem; letter-spacing: .5px; }
-        .navbar-ap .navbar-brand i { color: var(--ap-gold); }
-        .navbar-ap .nav-link { color: rgba(255,255,255,.75); }
-        .navbar-ap .nav-link:hover { color: #fff; }
-
-        /* Buttons */
-        .btn { border-radius: 10px; font-weight: 500; }
-        .btn-primary { background: var(--ap-indigo); border-color: var(--ap-indigo); }
-        .btn-primary:hover { background: #4338CA; border-color: #4338CA; }
-        .btn-accent { background: var(--ap-gold); border-color: var(--ap-gold); color: var(--ap-navy); }
-        .btn-accent:hover { background: #D97706; border-color: #D97706; color: #fff; }
-        .btn-outline-primary { color: var(--ap-indigo); border-color: var(--ap-indigo); }
-        .btn-outline-primary:hover,
-        .btn-check:checked + .btn-outline-primary { background: var(--ap-indigo); border-color: var(--ap-indigo); color: #fff; }
-        .text-primary { color: var(--ap-indigo) !important; }
-
-        /* Cards (glass) */
-        .card {
-            border: 1px solid rgba(255,255,255,.7); border-radius: 16px;
-            background: rgba(255,255,255,.82);
-            -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-            box-shadow: 0 8px 28px rgba(15,23,42,.08);
-        }
-        .card-hover { transition: transform .2s, box-shadow .2s; }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 14px 34px rgba(79,70,229,.2); }
-
-        /* Gradient banners with glow */
-        .hero, .page-head {
-            position: relative; overflow: hidden;
-            background: linear-gradient(135deg, var(--ap-navy) 0%, #312E81 55%, var(--ap-indigo) 100%);
-            color: #fff; border-radius: 22px;
-            box-shadow: 0 18px 40px rgba(79,70,229,.25);
-        }
-        .hero::before, .page-head::before {
-            content: ""; position: absolute; inset: 0; pointer-events: none;
-            background:
-                radial-gradient(circle at 85% 15%, rgba(245,158,11,.35), transparent 40%),
-                radial-gradient(circle at 10% 90%, rgba(255,255,255,.12), transparent 40%);
-        }
-        .hero::after, .page-head::after {
-            content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .5;
-            background-image: radial-gradient(rgba(255,255,255,.18) 1px, transparent 1px);
-            background-size: 22px 22px;
-        }
-        .hero > *, .page-head > * { position: relative; z-index: 1; }
-        .page-head { padding: 28px 32px; margin-bottom: 24px; }
-        .page-head h2 { font-weight: 700; margin: 0; }
-        .page-head p { margin: 4px 0 0; color: rgba(255,255,255,.75); }
-        .hero { padding: 70px 40px; }
-
-        /* Round icon */
-        .icon-circle {
-            width: 52px; height: 52px; border-radius: 50%;
-            display: inline-flex; align-items: center; justify-content: center;
-            background: rgba(79,70,229,.12); color: var(--ap-indigo); font-size: 1.4rem;
-        }
-        .icon-gold { background: rgba(245,158,11,.18); color: var(--ap-gold); }
-
-        /* Forms */
-        .form-control, .form-select { border-radius: 10px; padding: 10px 14px; }
-        .form-control:focus, .form-select:focus {
-            border-color: var(--ap-indigo); box-shadow: 0 0 0 .2rem rgba(79,70,229,.2);
-        }
-
-        /* Date box in appointments */
-        .date-box {
-            min-width: 70px; text-align: center; border-radius: 12px; padding: 8px;
-            background: var(--ap-navy); color: #fff;
-        }
-        .date-box .day { font-size: 1.5rem; font-weight: 700; color: var(--ap-gold); line-height: 1; }
-
-        /* Calendar (Flatpickr) colors */
-        .flatpickr-day.selected, .flatpickr-day.selected:hover { background: var(--ap-indigo); border-color: var(--ap-indigo); }
-        .flatpickr-day.today { border-color: var(--ap-gold); }
-
-        /* Footer */
-        .footer-ap { background: var(--ap-navy); color: rgba(255,255,255,.7); }
-        .footer-ap a { color: rgba(255,255,255,.7); text-decoration: none; }
-        .footer-ap a:hover { color: var(--ap-gold); }
-        .footer-ap .brand { color: #fff; font-weight: 700; font-size: 1.2rem; }
-    </style>
-    {% block extra_css %}{% endblock %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    {% block extra_head %}{% endblock %}
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-ap sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="/"><i class="bi bi-calendar2-check"></i> Appointly</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse justify-content-end" id="mainNav">
-                <ul class="navbar-nav align-items-lg-center">
-    {% if request.session.user_id %}
+<nav class="navbar navbar-expand-lg site-nav sticky-top">
+    <div class="container">
+        <a class="navbar-brand brand" href="/"><i class="bi bi-calendar2-check"></i> Mawid</a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-label="Open menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menu">
+            <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
 
-        {% if request.session.user_role == 'admin' %}
-            <li class="nav-item"><a class="nav-link" href="/portal/admin/dashboard">Admin Dashboard</a></li>
+                {% if request.session.user_role == 'admin' %}
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/portal/admin/dashboard' %}active{% endif %}" href="/portal/admin/dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link {% if '/portal/admin/provider' in request.path %}active{% endif %}" href="/portal/admin/providers">Providers</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/portal/admin/categories' %}active{% endif %}" href="/portal/admin/categories">Categories</a></li>
 
-        {% elif request.session.user_role == 'provider' %}
-            <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="/provider/schedule">Time Slots</a></li>
-            <li class="nav-item"><a class="nav-link" href="/provider/services">Services</a></li>
+                {% elif request.session.user_role == 'provider' %}
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/dashboard' %}active{% endif %}" href="/dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/provider/profile' %}active{% endif %}" href="/provider/profile">My profile</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/provider/services' %}active{% endif %}" href="/provider/services">My services</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/provider/schedule' %}active{% endif %}" href="/provider/schedule">Schedule</a></li>
 
-        {% else %}
-            <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
-            <li class="nav-item"><a class="nav-link" href="/services">Services</a></li>
-            <li class="nav-item"><a class="nav-link" href="/appointments">Appointments</a></li>
-        {% endif %}
+                {% elif request.session.user_role == 'client' %}
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/dashboard' %}active{% endif %}" href="/dashboard">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/services' %}active{% endif %}" href="/services">Find services</a></li>
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/appointments' %}active{% endif %}" href="/appointments">Appointments</a></li>
 
-        <li class="nav-item"><a class="nav-link" href="/about">About Us</a></li>
-        <li class="nav-item ms-lg-2"><a class="btn btn-accent btn-sm" href="/logout"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link {% if request.path == '/services' %}active{% endif %}" href="/services">Find services</a></li>
+                {% endif %}
 
-    {% else %}
-        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-        <li class="nav-item"><a class="nav-link" href="/about">About Us</a></li>
-        <li class="nav-item ms-lg-2"><a class="btn btn-outline-light btn-sm" href="/login">Login</a></li>
-        <li class="nav-item ms-lg-2"><a class="btn btn-accent btn-sm" href="/register">Get Started</a></li>
-    {% endif %}
-                </ul>
-            </div>
+                <li class="nav-item"><a class="nav-link {% if request.path == '/about' %}active{% endif %}" href="/about">About us</a></li>
+
+                {% if request.session.user_id %}
+                    <li class="nav-item ms-lg-2"><span class="nav-user"><i class="bi bi-person-circle"></i> {{ request.session.user_name }}</span></li>
+                    <li class="nav-item"><a class="btn btn-soft btn-sm" href="/logout">Log out</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="/login">Log in</a></li>
+                    <li class="nav-item"><a class="btn btn-brand btn-sm ms-lg-2" href="/register">Sign up</a></li>
+                {% endif %}
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    <div class="container flex-grow-1 py-4">
-        {% if messages %}
-            <div class="row justify-content-center">
-                <div class="col-md-8">
-                    {% for message in messages %}
-                        <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-        {% endif %}
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show mb-2" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main>
+    {% block main %}
+    <div class="container pb-4">
         {% block content %}{% endblock %}
     </div>
+    {% endblock %}
+</main>
 
-    <footer class="footer-ap mt-5 pt-5 pb-3">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-md-5">
-                    <div class="brand"><i class="bi bi-calendar2-check text-warning"></i> Appointly</div>
-                    <p class="mt-2 mb-0">Book trusted professionals in a few clicks. No calls, no waiting, no stress.</p>
-                </div>
-                <div class="col-md-3">
-                    <h6 class="text-white">Quick Links</h6>
-                    <ul class="list-unstyled mb-0">
-                        <li><a href="/">Home</a></li>
-                        <li><a href="/about">About Us</a></li>
-                        <li><a href="/login">Login</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h6 class="text-white">Created by</h6>
-                    <p class="mb-0">Yousef Massad<br>Mohammad Hamdan</p>
-                </div>
-            </div>
-            <hr class="border-secondary mt-4">
-            <div class="text-center"><small>&copy; {% now "Y" %} Appointly. All rights reserved.</small></div>
+<footer class="site-footer">
+    <div class="container d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <strong>Mawid</strong>
+            <p class="mb-0 small">Appointment booking for the West Bank.</p>
         </div>
-    </footer>
+        <p class="mb-0 small">Built by
+            <a href="https://yousef-massad.github.io/portfolio/" target="_blank" rel="noopener">Yousef Massad</a>
+            and
+            <a href="https://mohhamdan0099-svg.github.io/" target="_blank" rel="noopener">Mohammad</a>
+        </p>
+    </div>
+</footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    {% block extra_js %}{% endblock %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
 </body>
 </html>

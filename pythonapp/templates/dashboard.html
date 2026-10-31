@@ -1,81 +1,94 @@
 {% extends 'base.html' %}
-{% block title %}Dashboard - Appointly{% endblock %}
+{% block title %}Dashboard{% endblock %}
 {% block content %}
-<div class="page-head d-flex justify-content-between align-items-center flex-wrap">
-    <div>
-        <h2>Welcome back, {{ user.first_name }}!</h2>
-        <p>Here is your Appointly dashboard.</p>
-    </div>
-    <span class="badge bg-warning text-dark text-capitalize px-3 py-2">{{ user.role }}</span>
+<div class="page-head">
+    <h2>Hello, {{ user.first_name }}</h2>
+    <p>{% if user.role == 'client' %}Here is what is coming up.{% else %}Here is your day at a glance.{% endif %}</p>
 </div>
 
 {% if user.role == 'client' %}
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card card-hover h-100 p-4">
-                <div class="icon-circle mb-3"><i class="bi bi-search"></i></div>
-                <h5>Browse Services</h5>
-                <p class="text-muted">Find available services from professionals.</p>
-                <a href="/services" class="btn btn-primary mt-auto">Browse Services</a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card card-hover h-100 p-4">
-                <div class="icon-circle icon-gold mb-3"><i class="bi bi-calendar-check"></i></div>
-                <h5>My Appointments</h5>
-                <p class="text-muted">View and manage your scheduled appointments.</p>
-                <a href="/appointments" class="btn btn-primary mt-auto">View Appointments</a>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card card-hover h-100 p-4">
-                <div class="icon-circle mb-3"><i class="bi bi-info-circle"></i></div>
-                <h5>About Appointly</h5>
-                <p class="text-muted">Learn more about our platform.</p>
-                <a href="/about" class="btn btn-primary mt-auto">About Us</a>
-            </div>
-        </div>
-    </div>
-
-    <h4 class="fw-bold mb-3">Why book with Appointly?</h4>
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card p-4 h-100">
-                <h6 class="text-primary"><i class="bi bi-person-check"></i> Find the right professional</h6>
-                <p class="text-muted mb-0">Search by service, category or price and compare approved providers in one place.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card p-4 h-100">
-                <h6 class="text-primary"><i class="bi bi-cursor"></i> Book in a few clicks</h6>
-                <p class="text-muted mb-0">Pick a day and a time that suits you. No phone calls and no waiting.</p>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card p-4 h-100">
-                <h6 class="text-primary"><i class="bi bi-tag"></i> Great prices</h6>
-                <p class="text-muted">Check the Services page for offers from our professionals.</p>
-                <a href="/services" class="btn btn-accent btn-sm align-self-start">See Offers</a>
-            </div>
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="panel">
+            <h3>Your next appointment</h3>
+            {% if next_appt %}
+                <div class="appt mb-0">
+                    <div class="date-box"><small>{{ next_appt.date|date:"D" }}</small><strong>{{ next_appt.date|date:"j" }}</strong><small>{{ next_appt.date|date:"M" }}</small></div>
+                    <div class="appt-body">
+                        <h5>{{ next_appt.service.name }}</h5>
+                        <div class="meta">
+                            <span><i class="bi bi-clock"></i>{{ next_appt.start_time|time:"H:i" }} to {{ next_appt.end_time|time:"H:i" }}</span>
+                            <span><i class="bi bi-person"></i>{{ next_appt.service.provider.user.first_name }} {{ next_appt.service.provider.user.last_name }}</span>
+                            <span><i class="bi bi-geo-alt"></i>{{ next_appt.service.provider.address }}, {{ next_appt.service.provider.city }}</span>
+                        </div>
+                    </div>
+                    <a href="{{ next_appt.google_calendar_link }}" target="_blank" rel="noopener" class="btn btn-soft btn-sm"><i class="bi bi-calendar-plus"></i> Add to Google Calendar</a>
+                </div>
+            {% else %}
+                <div class="empty">
+                    <i class="bi bi-calendar2-x"></i>
+                    <p class="mx-auto">You have no upcoming appointments.</p>
+                    <a href="/services" class="btn btn-brand btn-sm">Find a service</a>
+                </div>
+            {% endif %}
         </div>
     </div>
+    <div class="col-lg-4">
+        <div class="row g-3">
+            <div class="col-6 col-lg-12"><div class="stat"><span>Upcoming appointments</span><strong>{{ upcoming_count }}</strong></div></div>
+            <div class="col-6 col-lg-12"><div class="stat"><span>Bookings so far</span><strong>{{ total_count }}</strong></div></div>
+        </div>
+        {% if upcoming_count %}<a href="/appointments" class="btn btn-ghost w-100 mt-3">See all appointments</a>{% endif %}
+    </div>
+</div>
 
 {% elif user.role == 'provider' %}
-    <div class="card p-4">
-        <h4>Approval Status:
-            <span class="badge {% if profile.approval_status == 'Approved' %}bg-success{% elif profile.approval_status == 'Pending' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
-                {{ profile.approval_status }}
-            </span>
-        </h4>
-        {% if profile.approval_status == 'Approved' %}
-            <p class="text-muted mt-2">Your profile is approved. You can manage your services and open up time slots for clients.</p>
-            <div>
-                <a href="/provider/schedule" class="btn btn-accent me-2"><i class="bi bi-calendar-plus"></i> Manage Time Slots</a>
-                <a href="/provider/services" class="btn btn-primary"><i class="bi bi-briefcase"></i> Manage Services</a>
-            </div>
-        {% else %}
-            <p class="text-muted mt-2 mb-0">Your registration is currently pending admin approval. Once approved, you can add time slots and services.</p>
-        {% endif %}
+{% if profile.approval_status == 'Pending' %}
+    <div class="alert alert-warning"><strong>Waiting for admin confirmation.</strong> You can set up your services and working hours now. Clients see you once the admin approves your details.</div>
+{% elif profile.approval_status == 'Rejected' %}
+    <div class="alert alert-danger"><strong>Your details were not approved.</strong> Reason: {{ profile.admin_note }}. <a href="/provider/profile" class="alert-link">Update your profile</a> to send it for review again.</div>
+{% endif %}
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <div class="panel">
+            <h3>Set up your page</h3>
+            <ul class="checklist">
+                <li class="{% if profile.approval_status == 'Approved' %}done{% endif %}">
+                    <i class="bi {% if profile.approval_status == 'Approved' %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
+                    <span>Details confirmed by the admin</span>
+                </li>
+                <li class="{% if has_services %}done{% endif %}">
+                    <i class="bi {% if has_services %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
+                    {% if has_services %}<span>Add your services</span>{% else %}<a href="/provider/services">Add your services</a>{% endif %}
+                </li>
+                <li class="{% if has_schedule %}done{% endif %}">
+                    <i class="bi {% if has_schedule %}bi-check-circle-fill{% else %}bi-circle{% endif %}"></i>
+                    {% if has_schedule %}<span>Set your working hours</span>{% else %}<a href="/provider/schedule">Set your working hours</a>{% endif %}
+                </li>
+            </ul>
+        </div>
+        <div class="stat mt-3"><span>Upcoming bookings</span><strong>{{ upcoming_count }}</strong></div>
     </div>
+    <div class="col-lg-7">
+        <div class="panel">
+            <h3>Today</h3>
+            {% if todays %}
+                {% for a in todays %}
+                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                        <div>
+                            <strong>{{ a.start_time|time:"H:i" }} to {{ a.end_time|time:"H:i" }}</strong>
+                            <div class="text-muted small">{{ a.service.name }} with {{ a.client.first_name }} {{ a.client.last_name }}</div>
+                        </div>
+                        <span class="status Confirmed">Booked</span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty"><i class="bi bi-cup-hot"></i><p class="mx-auto mb-0">No bookings today.</p></div>
+            {% endif %}
+            <a href="/provider/schedule" class="btn btn-ghost btn-sm mt-3">Open full schedule</a>
+        </div>
+    </div>
+</div>
 {% endif %}
 {% endblock %}

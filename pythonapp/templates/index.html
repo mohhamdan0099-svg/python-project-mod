@@ -1,114 +1,111 @@
 {% extends 'base.html' %}
-{% block title %}Appointly - Book Your Next Appointment in Seconds{% endblock %}
-{% block extra_css %}
-<style>
-    /* small preview card inside the hero */
-    .preview-card {
-        background: rgba(255,255,255,.12);
-        border: 1px solid rgba(255,255,255,.25);
-        -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-        border-radius: 18px; padding: 22px; color: #fff; text-align: left;
-        box-shadow: 0 20px 40px rgba(0,0,0,.25);
-        animation: ap-float 9s ease-in-out infinite alternate;
-    }
-    .preview-card .mini-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-    .preview-card .mini-days span {
-        text-align: center; font-size: .75rem; padding: 6px 0; border-radius: 8px;
-        background: rgba(255,255,255,.08); color: rgba(255,255,255,.55);
-    }
-    .preview-card .mini-days span.open { background: rgba(255,255,255,.2); color: #fff; }
-    .preview-card .mini-days span.picked { background: var(--ap-gold); color: var(--ap-navy); font-weight: 600; }
-    .preview-card .slot {
-        display: inline-block; padding: 6px 12px; margin: 4px 4px 0 0; border-radius: 10px;
-        font-size: .8rem; background: rgba(255,255,255,.15);
-    }
-    .preview-card .slot.picked { background: var(--ap-indigo); }
-</style>
-{% endblock %}
-{% block content %}
+{% block title %}Book trusted professionals in your city{% endblock %}
+{% block main %}
 
-<!-- Hero -->
-<div class="hero mb-5">
-    <div class="row align-items-center g-5">
-        <div class="col-lg-7 text-center text-lg-start">
-            <span class="badge bg-warning text-dark mb-3 px-3 py-2">Smart appointment booking</span>
-            <h1 class="display-4 fw-bold">Your time. <span style="color:#F59E0B;">Booked.</span></h1>
-            <p class="lead mb-4" style="color:rgba(255,255,255,.8);">
-                Appointly connects you with trusted professionals. Pick a service, choose a day on the calendar, and confirm your appointment in seconds.
-            </p>
-            <a href="/register" class="btn btn-accent btn-lg px-4 me-2">Get Started</a>
-            <a href="/login" class="btn btn-outline-light btn-lg px-4">Login</a>
-        </div>
-        <div class="col-lg-5 d-none d-lg-block">
-            <!-- Example preview (illustration only) -->
-            <div class="preview-card">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <strong><i class="bi bi-calendar3"></i> Pick a day</strong>
-                    <small style="color:rgba(255,255,255,.6);">Example</small>
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <h1>Book a trusted professional in your city</h1>
+                <p class="lead">Doctors, tutors, plumbers, photographers and more, across the West Bank. See the times that are really free and book in under a minute.</p>
+                <div class="d-flex flex-wrap gap-3 mt-4">
+                    <a href="/services" class="btn btn-light-on-dark btn-lg">Find a service</a>
+                    {% if not request.session.user_id %}
+                        <a href="/register/provider" class="btn btn-outline-on-dark btn-lg">Join as a professional</a>
+                    {% endif %}
                 </div>
-                <div class="mini-days mb-3">
-                    <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
-                    <span class="open">3</span><span class="open">4</span><span class="picked">5</span><span class="open">6</span><span>7</span><span class="open">8</span><span>9</span>
-                </div>
-                <strong class="d-block mb-1"><i class="bi bi-clock"></i> Pick a time</strong>
-                <span class="slot">09:00</span><span class="slot picked">10:30</span><span class="slot">13:00</span><span class="slot">15:30</span>
-                <div class="mt-3">
-                    <span class="badge bg-success"><i class="bi bi-check2-circle"></i> Confirmed</span>
+            </div>
+            <div class="col-lg-5 offset-lg-1">
+                <div class="demo-card" aria-hidden="true">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5>Dental check-up</h5>
+                            <span class="demo-tag">Example booking: 30 minutes, Ramallah</span>
+                        </div>
+                        <span class="tag">Dentist</span>
+                    </div>
+                    <div class="demo-days">
+                        <span class="demo-day">Sun 9</span>
+                        <span class="demo-day on">Mon 10</span>
+                        <span class="demo-day">Tue 11</span>
+                        <span class="demo-day">Wed 12</span>
+                    </div>
+                    <div class="demo-times">
+                        <span class="demo-time">09:00</span>
+                        <span class="demo-time off">09:30</span>
+                        <span class="demo-time on">10:00</span>
+                        <span class="demo-time">10:30</span>
+                        <span class="demo-time">11:00</span>
+                    </div>
+                    <div class="btn btn-brand w-100 mt-3 disabled">Confirm booking</div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+<div class="tatreez"></div>
 
-<!-- Features -->
-<div class="row g-4 mb-5">
-    <div class="col-md-4">
-        <div class="card card-hover h-100 p-4 text-center">
-            <div class="icon-circle mx-auto mb-3"><i class="bi bi-search"></i></div>
-            <h5>Find the right professional</h5>
-            <p class="text-muted mb-0">Search by service, category or price and compare approved providers in one place.</p>
+<section class="section">
+    <div class="container">
+        <h2 class="section-title">What you get</h2>
+        <p class="text-muted mb-4">Mawid works for the people who book and for the people who are booked.</p>
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="audience">
+                    <h3>For clients</h3>
+                    <div class="feature"><i class="bi bi-search"></i><div><h6>Search by city, category and price</h6><p>Find the right professional close to you, from healthcare to home repairs.</p></div></div>
+                    <div class="feature"><i class="bi bi-clock-history"></i><div><h6>See only the times that are free</h6><p>No phone calls. The calendar shows the real availability of the professional.</p></div></div>
+                    <div class="feature"><i class="bi bi-calendar-plus"></i><div><h6>Add the booking to Google Calendar</h6><p>One click puts the appointment, place and time in your own calendar.</p></div></div>
+                    <div class="feature"><i class="bi bi-x-circle"></i><div><h6>Cancel from your account</h6><p>Plans change. Cancelling frees the time for someone else.</p></div></div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="audience dark">
+                    <h3>For professionals</h3>
+                    <div class="feature"><i class="bi bi-patch-check"></i><div><h6>A verified profile</h6><p>The admin checks your details and proof of work, so clients trust you from the first visit.</p></div></div>
+                    <div class="feature"><i class="bi bi-calendar-week"></i><div><h6>Set your weekly hours once</h6><p>Choose your working days and hours. Mawid creates the free times for every service.</p></div></div>
+                    <div class="feature"><i class="bi bi-shield-check"></i><div><h6>No double bookings</h6><p>Every service has a duration, and booked times disappear from the calendar automatically.</p></div></div>
+                    <div class="feature"><i class="bi bi-geo-alt"></i><div><h6>Be found in your city</h6><p>Your address and city are shown on every service you offer.</p></div></div>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card card-hover h-100 p-4 text-center">
-            <div class="icon-circle icon-gold mx-auto mb-3"><i class="bi bi-calendar3"></i></div>
-            <h5>Pick a day, pick a time</h5>
-            <p class="text-muted mb-0">A clear calendar shows only the days with open slots. Past dates are never available.</p>
+</section>
+
+<section class="section pt-0">
+    <div class="container">
+        <h2 class="section-title">How booking works</h2>
+        <div class="row g-4 mt-1">
+            <div class="col-md-4"><div class="step"><b>1</b><h5 class="mt-1">Find a service</h5><p class="text-muted mb-0">Search or filter by city, category and price.</p></div></div>
+            <div class="col-md-4"><div class="step"><b>2</b><h5 class="mt-1">Choose a day and time</h5><p class="text-muted mb-0">Only days and times that are really free can be selected.</p></div></div>
+            <div class="col-md-4"><div class="step"><b>3</b><h5 class="mt-1">Confirm</h5><p class="text-muted mb-0">The appointment is saved in your account and in the schedule of the professional.</p></div></div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card card-hover h-100 p-4 text-center">
-            <div class="icon-circle mx-auto mb-3"><i class="bi bi-patch-check"></i></div>
-            <h5>Verified providers</h5>
-            <p class="text-muted mb-0">Every professional is reviewed and approved by our admin before appearing on the platform.</p>
+</section>
+
+<section class="section pt-0">
+    <div class="container">
+        <h2 class="section-title">Services for everyday life</h2>
+        <p class="text-muted mb-4">And the admin can add new categories whenever a professional needs one.</p>
+        <div class="row g-3">
+            {% for g in groups %}
+            <div class="col-sm-6 col-lg-4">
+                <div class="group-chip">
+                    <i class="bi {{ g.icon }}"></i>
+                    <div><strong>{{ g.name }}</strong><small>{{ g.examples }}</small></div>
+                </div>
+            </div>
+            {% endfor %}
         </div>
     </div>
-</div>
+</section>
 
-<!-- How it works -->
-<h3 class="text-center fw-bold mb-4">How it works</h3>
-<div class="row g-4 text-center mb-5">
-    <div class="col-md-4">
-        <h1 class="text-primary fw-bold">1</h1>
-        <h5>Create an account</h5>
-        <p class="text-muted">Sign up as a client or as a professional.</p>
+<section class="pb-5">
+    <div class="container">
+        <div class="trust">
+            <h3>Every professional is reviewed first</h3>
+            <p class="mb-0">Before a professional appears on Mawid, an admin checks their city, address, phone number and proof of work. Changes to those details are checked again.</p>
+        </div>
     </div>
-    <div class="col-md-4">
-        <h1 class="text-primary fw-bold">2</h1>
-        <h5>Choose a service</h5>
-        <p class="text-muted">Browse services and open the provider's calendar.</p>
-    </div>
-    <div class="col-md-4">
-        <h1 class="text-primary fw-bold">3</h1>
-        <h5>Confirm your slot</h5>
-        <p class="text-muted">Select a time and your appointment is booked.</p>
-    </div>
-</div>
-
-<!-- Call to action -->
-<div class="hero text-center py-5">
-    <h2 class="fw-bold">Ready to save time?</h2>
-    <p style="color:rgba(255,255,255,.8);">Join Appointly today.</p>
-    <a href="/register" class="btn btn-accent btn-lg px-4">Create your free account</a>
-</div>
+</section>
 {% endblock %}

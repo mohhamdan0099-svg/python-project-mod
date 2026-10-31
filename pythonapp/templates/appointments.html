@@ -1,35 +1,57 @@
 {% extends 'base.html' %}
-{% block title %}My Appointments - Appointly{% endblock %}
+{% block title %}My appointments{% endblock %}
 {% block content %}
 <div class="page-head">
-    <h2>My Appointments</h2>
-    <p>View and manage your booked appointments.</p>
+    <h2>My appointments</h2>
+    <p>Upcoming bookings first, then your history.</p>
 </div>
 
-{% if appointments %}
-    {% for appt in appointments %}
-        <div class="card p-3 mb-3">
-            <div class="d-flex align-items-center flex-wrap gap-3">
-                <div class="date-box">
-                    <div class="day">{{ appt.time_slot.date|date:"d" }}</div>
-                    <small>{{ appt.time_slot.date|date:"M Y" }}</small>
-                </div>
-                <div class="flex-grow-1">
-                    <h5 class="mb-1">{{ appt.time_slot.provider.service_title }}</h5>
-                    <p class="mb-1 text-muted">With {{ appt.time_slot.provider.user.first_name }} {{ appt.time_slot.provider.user.last_name }}</p>
-                    <small><i class="bi bi-clock"></i> {{ appt.time_slot.start_time|time:"H:i" }} - {{ appt.time_slot.end_time|time:"H:i" }}</small>
-                    <span class="badge bg-success ms-2">{{ appt.status }}</span>
-                </div>
-                <a href="/appointment/cancel/{{ appt.id }}" class="btn btn-outline-danger"
-                   onclick="return confirm('Cancel this appointment?')">Cancel</a>
-            </div>
+<h4 class="mb-3">Upcoming</h4>
+{% for a in upcoming %}
+<div class="appt">
+    <div class="date-box"><small>{{ a.date|date:"D" }}</small><strong>{{ a.date|date:"j" }}</strong><small>{{ a.date|date:"M" }}</small></div>
+    <div class="appt-body">
+        <h5>{{ a.service.name }}</h5>
+        <div class="meta">
+            <span><i class="bi bi-clock"></i>{{ a.start_time|time:"H:i" }} to {{ a.end_time|time:"H:i" }}</span>
+            <span><i class="bi bi-person"></i>{{ a.service.provider.user.first_name }} {{ a.service.provider.user.last_name }}</span>
+            <span><i class="bi bi-geo-alt"></i>{{ a.service.provider.address }}, {{ a.service.provider.city }}</span>
+            <span><i class="bi bi-telephone"></i>{{ a.service.provider.phone }}</span>
         </div>
-    {% endfor %}
-{% else %}
-    <div class="card p-5 text-center">
-        <div class="icon-circle mx-auto mb-3"><i class="bi bi-calendar-x"></i></div>
-        <p class="text-muted">You have no appointments yet.</p>
-        <a href="/services" class="btn btn-primary align-self-center">Browse Services</a>
     </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ a.google_calendar_link }}" target="_blank" rel="noopener" class="btn btn-soft btn-sm"><i class="bi bi-calendar-plus"></i> Add to Google Calendar</a>
+        <form action="/appointment/cancel/{{ a.id }}" method="POST" onsubmit="return confirm('Cancel this appointment?')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger-soft btn-sm">Cancel</button>
+        </form>
+    </div>
+</div>
+{% empty %}
+<div class="panel empty">
+    <i class="bi bi-calendar2-x"></i>
+    <p class="mx-auto">No upcoming appointments.</p>
+    <a href="/services" class="btn btn-brand btn-sm">Find a service</a>
+</div>
+{% endfor %}
+
+{% if history %}
+<h4 class="mt-5 mb-3">History</h4>
+<div class="panel panel-tight table-wrap">
+    <table class="table-ui">
+        <thead><tr><th>Service</th><th>Professional</th><th>Date</th><th>Time</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for a in history %}
+            <tr>
+                <td>{{ a.service.name }}</td>
+                <td>{{ a.service.provider.user.first_name }} {{ a.service.provider.user.last_name }}</td>
+                <td>{{ a.date|date:"j M Y" }}</td>
+                <td>{{ a.start_time|time:"H:i" }}</td>
+                <td><span class="status {{ a.status }}">{% if a.status == 'Confirmed' %}Completed{% else %}{{ a.status }}{% endif %}</span></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endif %}
 {% endblock %}
