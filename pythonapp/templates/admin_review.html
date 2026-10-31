@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}Review {{ profile.user.first_name }}{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h2>{{ profile.user.first_name }} {{ profile.user.last_name }}</h2>
+    <p>{{ profile.user.email }} <span class="status {{ profile.approval_status }} ms-2">{{ profile.approval_status }}</span></p>
+</div>
+
+<form method="POST">
+    {% csrf_token %}
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="panel">
+                <h4>Details (you can correct them)</h4>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label class="form-label" for="profession">Profession</label>
+                        <input type="text" class="form-control" id="profession" name="profession" value="{{ profile.profession }}" required>
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label" for="phone">Phone number</label>
+                        <input type="text" class="form-control" id="phone" name="phone" value="{{ profile.phone }}" required>
+                    </div>
+                    <div class="col-sm-5">
+                        <label class="form-label" for="city">City</label>
+                        <select class="form-select" id="city" name="city">
+                            {% for c in cities %}<option value="{{ c }}" {% if profile.city == c %}selected{% endif %}>{{ c }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm-7">
+                        <label class="form-label" for="address">Address</label>
+                        <input type="text" class="form-control" id="address" name="address" value="{{ profile.address }}" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel mt-4">
+                <h4>Your decision</h4>
+                <label class="form-label" for="admin_note">Reason (required only when rejecting)</label>
+                <textarea class="form-control mb-3" id="admin_note" name="admin_note" rows="3">{{ profile.admin_note }}</textarea>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="submit" name="action" value="approve" class="btn btn-brand">Approve</button>
+                    <button type="submit" name="action" value="reject" class="btn btn-danger-soft">Reject</button>
+                    <button type="submit" name="action" value="save" class="btn btn-ghost">Save details only</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="panel">
+                <h4>Proof of work</h4>
+                {% if profile.proof_is_image %}
+                    <img src="{{ profile.proof.url }}" alt="Proof of work" class="proof-preview mb-3">
+                {% endif %}
+                <a href="{{ profile.proof.url }}" target="_blank" rel="noopener" class="btn btn-soft btn-sm"><i class="bi bi-box-arrow-up-right"></i> Open the file</a>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

@@ -1,77 +1,77 @@
 {% extends 'base.html' %}
-{% block title %}Manage Services - Appointly{% endblock %}
+{% block title %}My services{% endblock %}
 {% block content %}
 <div class="page-head">
-    <h2>Manage Services &amp; Profile</h2>
-    <p>Describe yourself and list the services you offer.</p>
+    <h2>My services</h2>
+    <p>Each service has its own duration, so the calendar offers the right times.</p>
 </div>
 
-<div class="row g-4 mb-4">
-    <div class="col-md-5">
-        <div class="card p-4 h-100">
-            <h4>Update Profile Bio</h4>
-            <hr>
-            <form method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="update_profile" value="1">
-                <div class="mb-3"><label class="form-label">Bio / Description</label><textarea class="form-control" name="bio" rows="4" required>{{ profile.bio }}</textarea></div>
-                <button type="submit" class="btn btn-primary w-100">Save Changes</button>
-            </form>
-        </div>
-    </div>
-    <div class="col-md-7">
-        <div class="card p-4 h-100">
-            <h4>Add a Service</h4>
-            <hr>
-            <form method="POST">
-                {% csrf_token %}
-                <input type="hidden" name="add_service" value="1">
-                <div class="mb-3">
-                    <label class="form-label">Service Name</label>
-                    <input type="text" class="form-control" name="service_name" placeholder="e.g., Haircut, Consultation" required>
-                </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Category</label>
-                        <select class="form-select" name="category">
-                            <option value="Beauty">Beauty</option>
-                            <option value="Wellness">Wellness</option>
-                            <option value="Fitness">Fitness</option>
-                            <option value="Consulting">Consulting</option>
-                            <option value="Other">Other</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Price ($)</label>
-                        <input type="number" step="0.01" min="0.01" class="form-control" name="price" required>
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Description</label>
-                    <textarea class="form-control" name="description" rows="2" required></textarea>
-                </div>
-                <button type="submit" class="btn btn-primary">Add Service</button>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="card p-4 mb-4">
-    <h4>Your Current Services</h4>
-    <hr>
-    {% if services %}
-        {% for s in services %}
-            <div class="d-flex justify-content-between align-items-center border rounded p-3 mb-2">
-                <div>
-                    <h5 class="mb-1">{{ s.name }} <span class="badge bg-warning text-dark">{{ s.category }}</span></h5>
-                    <p class="mb-1 text-muted">{{ s.description }}</p>
-                    <small class="fw-bold text-primary">${{ s.price }}</small>
-                </div>
-                <a href="/provider/service/remove/{{ s.id }}" class="btn btn-outline-danger btn-sm">Remove</a>
+<div class="row g-4">
+    <div class="col-lg-5">
+        <form method="POST" class="panel">
+            {% csrf_token %}
+            <h4>Add a service</h4>
+            <div class="mb-3">
+                <label class="form-label" for="name">Service name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="For example: Teeth cleaning" required>
             </div>
-        {% endfor %}
-    {% else %}
-        <p class="text-muted mb-0">You haven't added any services yet.</p>
-    {% endif %}
+            <div class="mb-3">
+                <label class="form-label" for="category">Category</label>
+                <select class="form-select" id="category" name="category" required>
+                    <option value="">Choose a category</option>
+                    {% regroup categories by group as groups %}
+                    {% for g in groups %}
+                        <optgroup label="{{ g.grouper }}">
+                            {% for c in g.list %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-6">
+                    <label class="form-label" for="duration">Duration</label>
+                    <select class="form-select" id="duration" name="duration" required>
+                        {% for minutes, label in durations %}
+                            <option value="{{ minutes }}" {% if minutes == 30 %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-6">
+                    <label class="form-label" for="price">Price (₪)</label>
+                    <input type="number" step="0.01" min="0.01" class="form-control" id="price" name="price" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="description">Description</label>
+                <textarea class="form-control" id="description" name="description" rows="3" placeholder="What is included?" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-brand w-100">Add service</button>
+        </form>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="panel">
+            <h4>Your services</h4>
+            {% for s in services %}
+                <div class="d-flex justify-content-between align-items-start gap-3 py-3 border-bottom">
+                    <div>
+                        <strong>{{ s.name }}</strong>
+                        <div class="meta mb-1">
+                            <span><i class="bi bi-tag"></i>{{ s.category.name }}</span>
+                            <span><i class="bi bi-clock"></i>{{ s.duration }} min</span>
+                            <span><i class="bi bi-cash"></i>₪{{ s.price }}</span>
+                        </div>
+                        <div class="text-muted small">{{ s.description|truncatechars:120 }}</div>
+                    </div>
+                    <form action="/provider/service/remove/{{ s.id }}" method="POST" onsubmit="return confirm('Remove this service?')">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger-soft btn-sm">Remove</button>
+                    </form>
+                </div>
+            {% empty %}
+                <div class="empty"><i class="bi bi-plus-circle"></i><p class="mx-auto mb-0">No services yet. Add your first one.</p></div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 {% endblock %}

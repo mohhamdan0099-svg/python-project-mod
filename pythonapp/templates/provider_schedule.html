@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Schedule{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h2>Schedule</h2>
+    <p>Set your weekly working hours once. Booked appointments appear on the calendar below.</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-5">
+        <form method="POST" class="panel">
+            {% csrf_token %}
+            <h4>Weekly working hours</h4>
+            {% for d in days %}
+            <div class="schedule-row">
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" name="work_{{ d.number }}" id="work_{{ d.number }}" {% if d.row %}checked{% endif %}>
+                    <label class="form-check-label fw-semibold" for="work_{{ d.number }}">{{ d.name }}</label>
+                </div>
+                <input type="time" class="form-control" name="start_{{ d.number }}" aria-label="{{ d.name }} opens" value="{% if d.row %}{{ d.row.start_time|time:'H:i' }}{% else %}09:00{% endif %}">
+                <input type="time" class="form-control" name="end_{{ d.number }}" aria-label="{{ d.name }} closes" value="{% if d.row %}{{ d.row.end_time|time:'H:i' }}{% else %}17:00{% endif %}">
+            </div>
+            {% endfor %}
+            <div class="form-hint mb-3">Switch a day on to work that day. Changing your hours does not cancel bookings that already exist.</div>
+            <button type="submit" class="btn btn-brand w-100">Save working hours</button>
+        </form>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="panel">
+            <h4>Booked appointments</h4>
+            <div id="calendar"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ business|json_script:"business-hours" }}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script>
+    var businessHours = JSON.parse(document.getElementById('business-hours').textContent);
+
+    // the external calendar (FullCalendar) shows the appointments that OUR API sends
+    var calendar = new FullCalendar.Calendar(document.getElementById('calendar'), {
+        initialView: 'timeGridWeek',
+        firstDay: 0,
+        allDaySlot: false,
+        nowIndicator: true,
+        height: 'auto',
+        slotMinTime: '07:00:00',
+        slotMaxTime: '21:00:00',
+        businessHours: businessHours,
+        headerToolbar: { left: 'prev,next today', center: 'title', right: 'timeGridWeek,dayGridMonth' },
+        events: '/api/provider/events'
+    });
+    calendar.render();
+</script>
+{% endblock %}

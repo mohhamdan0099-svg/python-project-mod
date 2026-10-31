@@ -116,3 +116,6 @@ RESEND_FROM_EMAIL = os.getenv(
     "RESEND_FROM_EMAIL",
     "Dawrak <bookings@your-verified-domain.com>",
 )
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

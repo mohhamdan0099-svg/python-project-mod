@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+{% block title %}Book {{ service.name }}{% endblock %}
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h2>Book {{ service.name }}</h2>
+    <p>Choose a day, then a time.</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="panel">
+            <span class="tag">{{ service.category.name }}</span>
+            <h4 class="mt-2">{{ service.name }}</h4>
+            <p class="text-muted small">{{ service.description }}</p>
+            <div class="meta flex-column">
+                <span><i class="bi bi-clock"></i>{{ service.duration }} minutes</span>
+                <span><i class="bi bi-person"></i>{{ provider.user.first_name }} {{ provider.user.last_name }}, {{ provider.profession }}</span>
+                <span><i class="bi bi-geo-alt"></i>{{ provider.address }}, {{ provider.city }}</span>
+            </div>
+            <div class="price mt-3">₪{{ service.price }}</div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <form action="/book/confirm" method="POST" class="panel">
+            {% csrf_token %}
+            <input type="hidden" name="service_id" value="{{ service.id }}">
+            <input type="hidden" name="date" id="date-input">
+
+            {% if js_days %}
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <h4>1. Choose a day</h4>
+                    <input type="text" id="calendar" class="d-none">
+                    <div class="form-hint">Only the days this professional works can be selected.</div>
+                </div>
+                <div class="col-md-6">
+                    <h4>2. Choose a time</h4>
+                    <div id="times-box" class="time-grid"><p class="text-muted">Pick a day to see the free times.</p></div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-brand mt-4" id="confirm-btn" disabled>Confirm booking</button>
+            {% else %}
+            <div class="empty"><i class="bi bi-calendar2-x"></i><p class="mx-auto mb-0">This professional has not set working hours yet. Please check again soon.</p></div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if js_days %}
+{{ js_days|json_script:"work-days" }}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+<script>
+    var workDays = JSON.parse(document.getElementById('work-days').textContent);
+    var dateInput = document.getElementById('date-input');
+    var timesBox = document.getElementById('times-box');
+    var confirmBtn = document.getElementById('confirm-btn');
+
+    // the external calendar (flatpickr): only the working days can be clicked
+    flatpickr('#calendar', {
+        inline: true,
+        minDate: 'today',
+        maxDate: '{{ max_day }}',
+        enable: [function (day) { return workDays.indexOf(day.getDay()) !== -1; }],
+        onChange: function (selectedDates, dateStr) {
+            dateInput.value = dateStr;
+            confirmBtn.disabled = true;
+            timesBox.innerHTML = '<p class="text-muted">Loading times...</p>';
+
+            // ask OUR API for the free times of that day (AJAX, no page reload)
+            fetch('/api/service/{{ service.id }}/times?date=' + dateStr)
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (data.error) {
+                        timesBox.innerHTML = '<p class="text-danger">' + data.error + '</p>';
+                        return;
+                    }
+                    if (data.times.length === 0) {
+                        timesBox.innerHTML = '<p class="text-muted">No free times on this day. Try another day.</p>';
+                        return;
+                    }
+                    var html = '';
+                    data.times.forEach(function (t) {
+                        var id = 't' + t.replace(':', '');
+                        html += '<input type="radio" name="start_time" id="' + id + '" value="' + t + '">' +
+                                '<label for="' + id + '">' + t + '</label>';
+                    });
+                    timesBox.innerHTML = html;
+                });
+        }
+    });
+
+    // the button is enabled only after a time is chosen
+    timesBox.addEventListener('change', function () { confirmBtn.disabled = false; });
+</script>
+{% endif %}
+{% endblock %}

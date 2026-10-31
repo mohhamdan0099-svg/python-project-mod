@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Providers{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h2>Providers</h2>
+    <p>Open any provider to see the proof of work, correct the details or change the decision.</p>
+</div>
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <a href="/portal/admin/providers" class="btn btn-sm {% if not status %}btn-brand{% else %}btn-ghost{% endif %}">All</a>
+    <a href="/portal/admin/providers?status=Pending" class="btn btn-sm {% if status == 'Pending' %}btn-brand{% else %}btn-ghost{% endif %}">Pending</a>
+    <a href="/portal/admin/providers?status=Approved" class="btn btn-sm {% if status == 'Approved' %}btn-brand{% else %}btn-ghost{% endif %}">Approved</a>
+    <a href="/portal/admin/providers?status=Rejected" class="btn btn-sm {% if status == 'Rejected' %}btn-brand{% else %}btn-ghost{% endif %}">Rejected</a>
+</div>
+
+<div class="panel panel-tight table-wrap">
+    <table class="table-ui">
+        <thead><tr><th>Provider</th><th>Profession</th><th>City</th><th>Phone</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        {% for p in providers %}
+            <tr>
+                <td><strong>{{ p.user.first_name }} {{ p.user.last_name }}</strong><div class="text-muted small">{{ p.user.email }}</div></td>
+                <td>{{ p.profession }}</td>
+                <td>{{ p.city }}</td>
+                <td>{{ p.phone }}</td>
+                <td><span class="status {{ p.approval_status }}">{{ p.approval_status }}</span></td>
+                <td class="text-end"><a href="/portal/admin/provider/{{ p.id }}" class="btn btn-ghost btn-sm">Open</a></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6" class="empty">No providers here yet.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

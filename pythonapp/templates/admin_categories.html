@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Categories{% endblock %}
+{% block content %}
+<div class="page-head">
+    <h2>Categories</h2>
+    <p>Add a category when a professional offers something that is not on the list.</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <form method="POST" class="panel">
+            {% csrf_token %}
+            <h4>Add a category</h4>
+            <div class="mb-3">
+                <label class="form-label" for="name">Name</label>
+                <input type="text" class="form-control" id="name" name="name" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="group">Group</label>
+                <select class="form-select" id="group" name="group" required>
+                    {% for g in groups %}<option value="{{ g }}">{{ g }}</option>{% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-brand w-100">Add category</button>
+        </form>
+    </div>
+    <div class="col-lg-8">
+        <div class="panel">
+            <h4>{{ categories|length }} categories</h4>
+            {% regroup categories by group as groups_list %}
+            {% for g in groups_list %}
+                <div class="mb-3">
+                    <strong>{{ g.grouper }}</strong>
+                    <div class="d-flex flex-wrap gap-2 mt-1">
+                        {% for c in g.list %}<span class="tag">{{ c.name }}</span>{% endfor %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="empty"><i class="bi bi-grid"></i><p class="mx-auto mb-0">No categories yet. Run the seed step from SETUP.md.</p></div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
