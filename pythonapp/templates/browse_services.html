@@ -6,6 +6,27 @@
     <p>Every professional here has been reviewed by an admin.</p>
 </div>
 
+{% if request.session.user_role == 'client' %}
+<form method="GET" class="ai-box" onsubmit="var b = this.querySelector('button'); b.disabled = true; b.textContent = 'Searching...';">
+    <label class="form-label" for="ask"><i class="bi bi-stars"></i> Describe what you need</label>
+    <div class="d-flex flex-wrap gap-2">
+        <input type="text" class="form-control flex-grow-1" id="ask" name="ask" maxlength="200" value="{{ ask }}"
+               placeholder="For example: a cheap dentist in Nablus, or someone to fix a leaking sink">
+        <button type="submit" class="btn btn-brand">Find with AI</button>
+    </div>
+    <div class="form-hint">The AI suggests services. It can make mistakes, so check the details before booking.</div>
+</form>
+{% elif not request.session.user_id %}
+<p class="text-muted small"><i class="bi bi-stars"></i> <a href="/login">Log in</a> as a client to describe what you need in your own words.</p>
+{% endif %}
+
+{% if ai_used %}
+<div class="alert alert-info d-flex justify-content-between align-items-center">
+    <span>AI picked these services for: <strong>{{ ask }}</strong></span>
+    <a href="/services" class="alert-link">Show all services</a>
+</div>
+{% endif %}
+
 <form method="GET" class="filter-bar">
     <div class="row g-3 align-items-end">
         <div class="col-lg-3">

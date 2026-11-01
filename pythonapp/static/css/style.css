@@ -197,3 +197,8 @@ a:hover { color: var(--olive-900); }
   .schedule-row > :first-child { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+/* ===== AI search box ===== */
+.ai-box { background: var(--olive-50); border: 1px solid var(--olive-100); border-radius: 14px; padding: 1.1rem; margin-bottom: 1rem; }
+.ai-box .form-label { font-weight: 700; }
+.ai-box .bi-stars, .btn-soft .bi-stars { color: var(--pomegranate); }

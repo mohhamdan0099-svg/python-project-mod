@@ -6,9 +6,10 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
+from .ai_helper import smart_search, write_description
 from .data import CITIES, CATEGORY_GROUPS, GROUP_ICONS
 from .models import (Appointment, Category, ProviderProfile, Service, User,
-                    WorkSchedule, WEEKDAYS, DURATION_CHOICES, clean_phone)
+                     WorkSchedule, WEEKDAYS, DURATION_CHOICES, clean_phone)
 
 
 # ------------------------------------------------------------------
@@ -60,6 +61,18 @@ def show_errors(request, errors):
         messages.error(request, message)
 
 
+# a simple guard for your AI credits: each login session may use the AI this many times
+AI_LIMIT = 15
+
+
+def ai_allowed(request):
+    return request.session.get('ai_uses', 0) < AI_LIMIT
+
+
+def ai_count(request):
+    request.session['ai_uses'] = request.session.get('ai_uses', 0) + 1
+
+
 # ------------------------------------------------------------------
 # Public pages
 # ------------------------------------------------------------------
@@ -98,10 +111,40 @@ def browse_services(request):
         except ValueError:
             pass
 
+    # ---- AI smart search (logged-in clients only) ----
+    ask = request.GET.get('ask', '').strip()[:200]
+    ai_used = False
+    if ask and request.session.get('user_role') == 'client':
+        if not ai_allowed(request):
+            messages.info(request, 'You reached the limit of AI searches for now. Please use the filters.')
+        else:
+            # select_related loads each category and provider in the same query (faster)
+            candidates = list(services.select_related('category', 'provider')[:80])
+            lines = '\n'.join(
+                f'{s.id} | {s.name} | {s.category.name} | {s.provider.profession} | '
+                f'{s.provider.city} | {s.price} | {s.duration}'
+                for s in candidates
+            )
+            try:
+                ids = smart_search(ask, lines) if candidates else []
+            except Exception:
+                messages.warning(request, 'AI search is not available right now. Showing the normal results.')
+            else:                      # "else" runs only when the try had no error
+                ai_count(request)
+                by_id = {s.id: s for s in candidates}
+                picked = []
+                for i in ids:          # keep only ids that really exist, best first
+                    if i in by_id and by_id[i] not in picked:
+                        picked.append(by_id[i])
+                services = picked
+                ai_used = True
+
     return render(request, 'browse_services.html', {
         'services': services,
         'categories': Category.objects.order_by('group', 'name'),
         'cities': sorted(CITIES),
+        'ask': ask,
+        'ai_used': ai_used,
     })
 
 
@@ -372,6 +415,28 @@ def remove_service(request, service_id):
         service.save()
         messages.success(request, 'Service removed.')
     return redirect('/provider/services')
+
+
+def ai_describe_service(request):
+    """Our own API: the AI writes a service description for the provider."""
+    if not get_user(request, 'provider'):
+        return JsonResponse({'error': 'Providers only'}, status=403)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST only'}, status=405)
+
+    name = request.POST.get('name', '').strip()
+    if len(name) < 3:
+        return JsonResponse({'error': 'Enter the service name first.'}, status=400)
+    if not ai_allowed(request):
+        return JsonResponse({'error': 'You reached the limit of AI suggestions for now.'}, status=429)
+
+    try:
+        text = write_description(name, request.POST.get('category', ''), request.POST.get('notes', '')[:300])
+    except Exception:
+        return JsonResponse({'error': 'The AI is not available right now. You can write the description yourself.'}, status=503)
+
+    ai_count(request)
+    return JsonResponse({'description': text})
 
 
 def provider_schedule(request):
