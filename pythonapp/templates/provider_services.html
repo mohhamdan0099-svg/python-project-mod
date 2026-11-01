@@ -42,7 +42,10 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label class="form-label" for="description">Description</label>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label class="form-label mb-0" for="description">Description</label>
+                    <button type="button" id="ai-btn" class="btn btn-soft btn-sm"><i class="bi bi-stars"></i> Suggest with AI</button>
+                </div>
                 <textarea class="form-control" id="description" name="description" rows="3" placeholder="What is included?" required></textarea>
             </div>
             <button type="submit" class="btn btn-brand w-100">Add service</button>
@@ -74,4 +77,36 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // the AI button: sends the name, category and rough notes to OUR view, which asks the AI
+    document.getElementById('ai-btn').onclick = function () {
+        var button = this;
+        var category = document.getElementById('category');
+        var form = new FormData();
+        form.append('name', document.getElementById('name').value);
+        form.append('category', category.options[category.selectedIndex].text);
+        form.append('notes', document.getElementById('description').value);
+
+        button.disabled = true;
+        button.textContent = 'Writing...';
+
+        fetch('/api/ai/describe-service', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value },
+            body: form
+        })
+        .then(function (response) { return response.json(); })
+        .then(function (data) {
+            if (data.error) { alert(data.error); }
+            else { document.getElementById('description').value = data.description; }
+        })
+        .finally(function () {
+            button.disabled = false;
+            button.innerHTML = '<i class="bi bi-stars"></i> Suggest with AI';
+        });
+    };
+</script>
 {% endblock %}

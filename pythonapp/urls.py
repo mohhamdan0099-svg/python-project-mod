@@ -27,6 +27,7 @@ urlpatterns = [
     path('provider/service/remove/<int:service_id>', views.remove_service, name='remove_service'),
     path('provider/schedule', views.provider_schedule, name='provider_schedule'),
     path('api/provider/events', views.provider_events_api, name='provider_events_api'),
+    path('api/ai/describe-service', views.ai_describe_service, name='ai_describe_service'),
 
     # admin
     path('portal/admin/dashboard', views.admin_dashboard, name='admin_dashboard'),
